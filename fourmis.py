@@ -17,7 +17,7 @@ class Fourmis:
                  statut:str="vivante",
                  vie:int=100,
                  nourriture:int=100,
-                 mode_retour:bool=False
+                 mode_retour:bool=False,
                  ):
         self._pos_x = pos_x
         self._pos_y = pos_y
@@ -158,9 +158,10 @@ class Fourmis:
 
 
 class Reine(Fourmis):
-    def __init__(self, vie,statut,pheromones, pos_x, pos_y,nourriture,mode_retour=False,chemin_retour:list=[]):
+    def __init__(self, vie,statut,pheromones, pos_x, pos_y,nourriture,mode_retour=False,chemin_retour:list=[],couleur="#F5CC00"):
         super().__init__(chemin_retour=chemin_retour,pheromones=pheromones,pos_x=pos_x, pos_y=pos_y,
                          statut=statut,vie=vie,nourriture=nourriture,mode_retour=mode_retour)
+        self._couleur = couleur
 
     def ponte(self):
         global nbr_fourmis
@@ -171,9 +172,10 @@ class Reine(Fourmis):
 
 
 class Ouvriere(Fourmis):
-    def __init__(self, vie, pos_x,pos_y, pheromones, statut, nourriture,mode_retour=False,chemin_retour:list=[]):
+    def __init__(self, vie, pos_x,pos_y, pheromones, statut, nourriture,mode_retour=False,chemin_retour:list=[],couleur="#000000"):
         super().__init__(chemin_retour=chemin_retour,pheromones=pheromones,pos_x=pos_x, pos_y=pos_y,
                          statut=statut,vie=vie,nourriture=nourriture,mode_retour=mode_retour)
+        self._couleur = couleur
 
     def construction_nid(self):
         pass
@@ -197,10 +199,12 @@ class Soldat(Fourmis):
                  vie:int=100,
                  nourriture:int=100,
                  attaque:int=20,
+                 couleur="#FF6F00"
                  ):
         super().__init__(chemin_retour=chemin_retour,pheromones=pheromones,pos_x=pos_x, pos_y=pos_y,
                          statut=statut,vie=vie,nourriture=nourriture,mode_retour=mode_retour)
         self._attaque = attaque
+        self._couleur = couleur
 
     #attaque et augmentation de l'attaque (croissance)
     @property
@@ -233,10 +237,12 @@ class Larve(Fourmis):
         nourriture:int=100,
         statut:str="vivante",
         croissance:int=0,
+        couleur="#FF98EB"
     ):
         super().__init__(chemin_retour=chemin_retour,pheromones=pheromones,pos_x=pos_x, pos_y=pos_y,
                          statut=statut,vie=vie,nourriture=nourriture,mode_retour=mode_retour)
         self._croissance = croissance
+        self._couleur = couleur
 
     @property
     def croissance(self):
@@ -276,11 +282,12 @@ class Larve(Fourmis):
 
 #class sources nourriture
 class SourceNourriture:
-    def __init__(self, pos_x:int, pos_y:int, statut:str="plein",quantite:int=250):
+    def __init__(self, pos_x:int, pos_y:int, statut:str="plein",quantite:int=250, couleur="#00FF4D"):
         self._quantite = quantite
         self._pos_x = pos_x
         self._pos_y = pos_y
         self._statut = statut
+        self._couleur = couleur
 
     #définit quantite de nourriture restante
     @property
@@ -329,6 +336,5 @@ class SourceNourriture:
     def dissparaitre(self):
         pass
         #si source vide, faire disparaitre de la carte ?
-
 
     """générer source de temps en temps dans un autre fichier ?"""
