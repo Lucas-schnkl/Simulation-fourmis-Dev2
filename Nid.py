@@ -124,3 +124,10 @@ class Nid:
             "soldats": len(self._salle_defense),
             "ouvrieres": len(self._salle_entretien)
         }
+
+#nid = Nid(10, 20)
+#nid.ajouter_reine(reine)
+#nid.cycle_interne()
+#ajouter_nourriture()   # quand les ouvrières rapportent à manger
+#consommer_nourriture() # quand les larves et fourmis mangent
+#print(nid.etat_nid())
