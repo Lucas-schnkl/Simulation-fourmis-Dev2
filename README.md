@@ -1,1 +1,1 @@
-ajouter quelque chose pour gerer les tick du temps
+Projet de simulation du comportement d'une colonie de fourmi
