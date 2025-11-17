@@ -17,11 +17,15 @@ class Fourmis:
                  statut:str="vivante",
                  vie:int=100,
                  nourriture:int=100,
+                 transport_nourriture:int=0,
+                 capacite_transport:int=100,
                  mode_retour:bool=False,
                  ):
         self._pos_x = pos_x
         self._pos_y = pos_y
         self._nourriture = nourriture
+        self._transport_nourriture = transport_nourriture
+        self._capacite_transport = capacite_transport
         self._pheromones = pheromones
         self._vie = vie
         self._statut = statut
@@ -123,6 +127,19 @@ class Fourmis:
     def trouve_nourriture(self, source):
         #si pos actuelle = pos nourriture => retourner au nid en déposant phéromones sur le chemin
         if self._pos_x == source.pos_x and self._pos_y == source.pos_y:
+            if self._nourriture < 80:
+                quantite_manger=source.quantite * 0.05
+                self.manger(quantite_manger)
+            else: quantite_manger=0
+
+            quantite_dispo = source.quantite - quantite_manger
+            quantite_a_transporter = min(quantite_dispo, self._capacite_transport - self._transport_nourriture)
+            self._transport_nourriture += quantite_a_transporter
+
+            source.perd_nourriture(quantite_manger + quantite_a_transporter) #retire a la source la quantité prise
+
+            self.mode_retour=True
+            self._chemin_retour.append((self._pos_x, self._pos_y))
             pass
 
     def trouve_danger(self):
@@ -152,9 +169,27 @@ class Fourmis:
             if self._chemin_retour:
                 pos_precedente = self._chemin_retour.pop()
                 self.pos_x, self.pos_y = pos_precedente
+                case_phero = grille_phero[self.pos_y][self.pos_x]
+                if self._transport_nourriture > 0:
+                    case_phero.deposer_pheromones("nourriture", self._transport_nourriture / 10)
                 self.retourner_au_nid()
             else:
+                nid.ajouter_nourriture(self._transport_nourriture)
+                self._transport_nourriture = 0
                 self.mode_retour = False
+
+#differentes pheromones et la quantitée
+class Pheromones:
+    def __init__(self):
+        self._type_pheromones = {
+            "nourritures":0.0,
+            "danger":0.0,
+            "nid":0.0,
+        }
+
+    def deposer_pheromones(self,type_pheromones,quantite):
+        self._type_pheromones[type_pheromones] += quantite
+
 
 
 class Reine(Fourmis):
