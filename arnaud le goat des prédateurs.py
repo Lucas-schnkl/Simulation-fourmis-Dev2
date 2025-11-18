@@ -30,6 +30,24 @@ class Predateur:
         if self._nb_a_manger <= 0 :
             self._faim = False
 
+    @property
+    def pos_x(self):
+        return self._pos_x
+
+    @pos_x.setter
+    def pos_x(self, x):
+        self._pos_x = x
+
+    #position y
+    @property
+    def pos_y(self):
+        return self._pos_y
+
+    @pos_y.setter
+    def pos_y(self,y):
+        self._pos_y = y
+
+
 class Arnaud(Predateur):
     def __init__(self, pos_x:int = 0, pos_y:int = 0, faim=True, couleur="#FF0000",vie=5,attaque=2, nb_a_manger = 15000):
         super().__init__(pos_x,pos_y,faim,couleur,vie,attaque,nb_a_manger)
