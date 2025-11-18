@@ -2,10 +2,12 @@ import random
 
 
 class Nid:
-    def __init__(self, pos_x: int, pos_y: int, capacite: int = 500):
+    def __init__(self, pos_x: int,pos_y: int, couleur = "#000000", taille : int = 20, capacite: int = 500):
         # Position du nid
         self._pos_x = pos_x
         self._pos_y = pos_y
+        self._couleur = couleur # son affichage dans la map
+        self._taille = taille
         self._capacite = capacite  # nombre max de fourmis par nid
 
         # parites internes
@@ -27,6 +29,14 @@ class Nid:
     @property
     def pos_y(self):
         return self._pos_y
+
+    @property
+    def couleur(self):
+        return self._couleur
+
+    @couleur.setter
+    def couleur(self, couleur):
+        self.couleur = couleur
 
     @property
     def reserve_nourriture(self):
@@ -124,6 +134,10 @@ class Nid:
             "soldats": len(self._salle_defense),
             "ouvrieres": len(self._salle_entretien)
         }
+
+    @property
+    def taille(self):
+        return self._taille
 
 #nid = Nid(10, 20)
 #nid.ajouter_reine(reine)
