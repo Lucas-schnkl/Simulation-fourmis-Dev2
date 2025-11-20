@@ -6,8 +6,20 @@ from time import sleep
 
 from fourmis import Fourmis
 
+"""
+MESSAGE : 
+canvas.create_rectangle(pos_depart_x, pos_depart_y, taille_pixel, taille_pixel, fill=couleur_pixel, outline=bordure, tag="nom_tag") # structure d'un pixel
+Mettre le tag est important pour retrouver ses coos
+canvas.coords(nom_tag) #renvoie les coos du tag
+canvas.find_all() #va contenir tout les objets du canvas
+canvas.itemcget(objet_du_canvas, "propriete") #va renvoyer tout les objets du canvas selon le tag qu'on a mis (par exemple le tag "fill" va renvoyer l'objet avec sa couleur)
+
+note:
+mettre unn tag (autoincrement) par objet (ou alors on ut le nom de l'objet avec un  chiffre autoincrement)
+"""
+
 fenetre = tk.Tk()
-fenetre.geometry("700x700")          #taimlle fenetre
+fenetre.geometry("700x700")          #taille fenetre
 fenetre.resizable(True, True)
 
 canvas = tk.Canvas(fenetre, width=700, height=700)   #taille de la zone dessinable
@@ -17,7 +29,6 @@ pos_depart_x, pos_depart_y = 0,0
 taille_pixel = 15
 taille =700 // taille_pixel #le nombre de case par lignes
 
-#canvas.create_rectangle(pos_depart_x, pos_depart_y, taille_pixel, taille_pixel, fill=couleur_pixel, outline=bordure) # structure d'un pixel
 
 
 grille_phero = []
@@ -31,9 +42,9 @@ nbr_source_nourriture = 5 #choix du nombre de source qui appariassent sur la car
 source=[]
 nid_noir = Nid(0,0)
 
-THE_GOAT_OF_FOURMIES = Fourmis()
+THE_GOAT_OF_FOURMIS = Fourmis()
 
-canvas.create_rectangle(nid_noir.pos_x, nid_noir.pos_y, nid_noir.taille, nid_noir.taille, fill=nid_noir.couleur, outline=nid_noir.couleur)
+canvas.create_rectangle(nid_noir.pos_x, nid_noir.pos_y, nid_noir.taille, nid_noir.taille, fill=nid_noir.couleur, outline=nid_noir.couleur) #creatio du nid des fourmis noir
 
 for _ in range(nbr_source_nourriture):
     while True:
