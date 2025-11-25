@@ -123,24 +123,30 @@ class Fourmis:
         if choix:
             self.pos_x, self.pos_y = random.choices(choix, k=1)[0]
 
+    def trouve_nourriture(self, liste_sources):
+        for source in liste_sources:
+            if self._pos_x == source.pos_x and self._pos_y == source.pos_y:
 
-    def trouve_nourriture(self, source):
-        #si pos actuelle = pos nourriture => retourner au nid en déposant phéromones sur le chemin
-        if self._pos_x == source.pos_x and self._pos_y == source.pos_y:
-            if self._nourriture < 80:
-                quantite_manger=source.quantite * 0.05
-                self.manger(quantite_manger)
-            else: quantite_manger=0
+                if self._nourriture < 80:
+                    quantite_manger = source.quantite * 0.05
+                    self.manger(quantite_manger)
+                else:
+                    quantite_manger = 0
 
-            quantite_dispo = source.quantite - quantite_manger
-            quantite_a_transporter = min(quantite_dispo, self._capacite_transport - self._transport_nourriture)
-            self._transport_nourriture += quantite_a_transporter
+                quantite_dispo = source.quantite - quantite_manger
+                quantite_a_transporter = min(
+                    quantite_dispo,
+                    self._capacite_transport - self._transport_nourriture
+                )
+                self._transport_nourriture += quantite_a_transporter
 
-            source.perd_nourriture(quantite_manger + quantite_a_transporter) #retire a la source la quantité prise
+                source.perd_nourriture(quantite_manger + quantite_a_transporter)
 
-            self.mode_retour=True
-            self._chemin_retour.append((self._pos_x, self._pos_y))
-            pass
+                self.mode_retour = True
+                self._chemin_retour.append((self._pos_x, self._pos_y))
+                return True  # nourriture trouvée
+
+        return False  # aucune source à cette position
 
     def trouve_danger(self):
         #déposer phéromones en retournant au nid ?
@@ -313,63 +319,3 @@ class Larve(Fourmis):
 
         """supprimer cette instance pour faire moins
          1 larve vu qu'elle vient d'éclore ?"""
-
-
-#class sources nourriture
-class SourceNourriture:
-    def __init__(self, pos_x:int, pos_y:int, statut:str="plein",quantite:int=250, couleur="#00FF4D"):
-        self._quantite = quantite
-        self._pos_x = pos_x
-        self._pos_y = pos_y
-        self._statut = statut
-        self._couleur = couleur
-
-    #définit quantite de nourriture restante
-    @property
-    def quantite(self):
-        return self._quantite
-
-    @quantite.setter
-    def quantite(self,x):
-        self._quantite = x
-
-    #diminue quantite de nourriture restante quand fourmis
-    #viennent en chercher
-    def perd_nourriture(self,x):
-        self.quantite -= x
-        if self._quantite <= 0:
-            self._quantite = 0
-            self.statut = "vide"
-
-    #définit si source est vide ou non
-    @property
-    def statut(self):
-        return self._statut
-
-    @statut.setter
-    def statut(self,x):
-        self._statut = x
-
-    #définit position de la source
-    @property
-    def pos_x(self):
-        return self._pos_x
-
-    @pos_x.setter
-    def pos_x(self,x):
-        self._pos_x = x
-
-    @property
-    def pos_y(self):
-        return self._pos_y
-
-    @pos_y.setter
-    def pos_y(self, y):
-        self._pos_y = y
-
-
-    def dissparaitre(self):
-        pass
-        #si source vide, faire disparaitre de la carte ?
-
-    """générer source de temps en temps dans un autre fichier ?"""
