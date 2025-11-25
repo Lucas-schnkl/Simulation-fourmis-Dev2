@@ -9,10 +9,11 @@ class Simulation:
         while self.en_cours:
             # Déplacement fourmis
             for f in self.env.fourmis:
-                f.trouve_nourriture(self.env.sources)
+                # boucle sur chaque fourmis pour qu'elle trouve de la nourriture (déplacement)
+                f.se_deplacer()
                 self._interface.update()
 
-            # Déplacement prédateurs
+            # boucle sur chaque prédateur pour chasse (déplacement)
             for p in self.env.predateurs:
                 p.chasser()
                 self._interface.update()
@@ -25,3 +26,5 @@ class Simulation:
             if self.env.nid:
                 self.env.nid.cycle_interne()
                 self._interface.update()
+
+"""Faire appels de temps en pour ajouter prédateurs et autres sources ?"""
