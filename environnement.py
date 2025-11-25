@@ -1,5 +1,5 @@
 import random
-from Nid_fichier import Nid
+from nid import Nid
 from fourmis import Fourmis, Pheromones
 from source_nourriture import SourceNourriture
 
@@ -8,11 +8,10 @@ class Environnement:
         self.largeur = largeur
         self.hauteur = hauteur
         self.taille_pixel = taille_pixel
-        self.nb_sources = nb_sources
+        self.nb_sources = nb_sources #nombre de sources maximales en même temps
 
         self.taille_grille = largeur // taille_pixel
 
-        # ENTITÉS (pas de tkinter ici)
         self.grille_phero = [
             [Pheromones() for _ in range(self.taille_grille)]
             for _ in range(self.taille_grille)
@@ -23,9 +22,6 @@ class Environnement:
         self.fourmis = []
         self.predateurs = []
 
-    # ----------------------
-    #      LOGIQUE
-    # ----------------------
     def ajouter_nid(self, nid):
         self.nid = nid
 
@@ -42,11 +38,14 @@ class Environnement:
         pass
 
     def generer_sources(self):
+        # génère source de nourriture à position aléatoire
         for _ in range(self.nb_sources):
             while True:
+                # prends x et y au hasard (de 0 à taille max de la grille)
                 x = random.randint(0, self.taille_grille - 1)
                 y = random.randint(0, self.taille_grille - 1)
 
+                # vérifie que position choisie est pas celle du nid
                 if not self.nid or (x, y) != (self.nid.pos_x, self.nid.pos_y):
                     break
 
