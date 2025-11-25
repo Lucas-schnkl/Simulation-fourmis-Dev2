@@ -54,69 +54,64 @@ class Nid:
     def total_fourmis(self):
         return self._total_fourmis
 
-    # --- Fonctions ---
     def ajouter_nourriture(self, quantite: int):
-        """Ajoute nourri dans la réserve"""
+        # Ajoute nourriture dans la réserve
         self._reserve_nourriture += quantite
-        print(f" {quantite} unités de nourriture ajoutées. Total = {self._reserve_nourriture}")
+        print(f"Quantité ajoutée : {quantite} ({self._reserve_nourriture})")
 
     def consommer_nourriture(self, quantite: int):
-        """Consommation nid (larves + fourmis)"""
+        # Consommation nid (larves + fourmis)
         if self._reserve_nourriture >= quantite:
             self._reserve_nourriture -= quantite
         else:
             self._reserve_nourriture = 0
-            print("⚠ Le nid est à court de nourriture !")
+            print("Le nid est à court de nourriture")
 
-    # --- Gestion salles ---
     def ajouter_reine(self, reine):
-        """Ajoute la Reine dans la salle de ponte."""
+        # Ajoute la Reine dans la salle de ponte
         self._salle_ponte.append(reine)
-        print(" Reine installée dans la salle de ponte.")
 
     def pondre_oeuf(self):
-        """Ajoute un œuf """
+        # Ajoute un œuf
         self._total_oeufs += 1
-        print(f" Œuf pondu. Total œufs = {self._total_oeufs}")
+        print(f"Œuf pondu. Total œufs = {self._total_oeufs}")
 
     def transformer_oeuf_en_larve(self, larve):
-        """Bouge un œuf vers la salle des larves"""
+        # Bouge un œuf vers la salle des larves
         if self._total_oeufs > 0:
             self._total_oeufs -= 1
             self._salle_larves.append(larve)
             self._total_larves += 1
-            print(f" Nouvelle larve placée dans la salle des larves ({self._total_larves}).")
+            print(f"Nouvelle larve ({self._total_larves})")
 
-    def eclore_larve(self, fourmi):
-        """Quand larve deviens fourmi adulte"""
+    def metmorphose_larve(self, fourmi):
+        # Quand larve devient fourmi adulte
         if fourmi:
             self._salle_larves = [l for l in self._salle_larves if l.statut != "morte"]
             self._total_larves = len(self._salle_larves)
             self._total_fourmis += 1
-            print(f" Nouvelle fourmi adulte. Total fourmis = {self._total_fourmis}")
 
     def affecter_soldat(self, soldat):
-        """Envoie soldat dans la salle de défense"""
+        # Envoie soldat dans la salle de défense
         self._salle_defense.append(soldat)
-        print(" Soldat affecté à la défense du nid.")
+        print("Soldat affecté à la défense du nid")
 
     def affecter_ouvriere(self, ouvriere):
-        """Ajoute ouvrière à l’entretien du nid"""
+        # Ajoute ouvrière à l’entretien du nid
         self._salle_entretien.append(ouvriere)
-        print(" Ouvrière affectée à l’entretien du nid.")
+        print(" Ouvrière affectée à l’entretien du nid")
 
-    # --- Simulation ---
     def cycle_interne(self):
-        """Simule la vie interne du nid (consommation, développement)"""
+        # Simule la vie interne du nid (consommation, développement)
         # Consommation collective de nourriture
         consommation = len(self._salle_larves) * 2 + self._total_fourmis // 5
         self.consommer_nourriture(consommation)
 
-        # Croissance des larve
+        # Croissance des larves
         for larve in self._salle_larves:
-            larve.developpement(5)  # augmente la croiss
+            larve.developpement(5)  # augmente la croissance
             if larve.croissance >= 100:
-                larve.eclore()
+                larve.metamorphose()
 
         # Reproduction possible si assez de ressources
         if self._reserve_nourriture > 50 and self._salle_ponte:
@@ -124,7 +119,7 @@ class Nid:
                 self.pondre_oeuf()
 
     def etat_nid(self):
-        """résumé de l’état du nid"""
+        # résumé de l’état du nid
         return {
             "position": (self._pos_x, self._pos_y),
             "nourriture": self._reserve_nourriture,
