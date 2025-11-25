@@ -1,4 +1,3 @@
-# interface_graphique.py
 import tkinter as tk
 
 class InterfaceGraphique:
@@ -14,16 +13,13 @@ class InterfaceGraphique:
         self.canvas = tk.Canvas(self.fenetre, width=700, height=700)
         self.canvas.pack()
 
-        # entité Python -> ID graphique tkinter
         self.objects = {}
 
-    # ---------------------------------------------------------
-    #                    DESSINS FIXES
-    # ---------------------------------------------------------
-    def dessiner_static(self):
-        """Dessine le décor une seule fois : nid + sources de nourriture."""
 
-        # ----- NID -----
+    def dessiner_static(self):
+        # Dessine le décor une seule fois : nid + sources de nourriture
+
+        # Nid
         n = self.env.nid
         nid_id = self.canvas.create_rectangle(
             n.pos_x * self.taille_pixel,
@@ -34,7 +30,7 @@ class InterfaceGraphique:
         )
         self.objects[n] = nid_id
 
-        # ----- SOURCES -----
+        # Sources
         for s in self.env.sources:
             sid = self.canvas.create_rectangle(
                 s.pos_x * self.taille_pixel,
@@ -45,11 +41,8 @@ class InterfaceGraphique:
             )
             self.objects[s] = sid
 
-    # ---------------------------------------------------------
-    #                  DESSIN DES ENTITÉS VIVANTES
-    # ---------------------------------------------------------
     def dessiner_fourmis(self):
-        """Ajoute ou met à jour les fourmis sur le canvas."""
+        # Ajoute ou met à jour les fourmis sur le canvas
         for f in self.env.fourmis:
             if f not in self.objects:
                 fid = self.canvas.create_oval(
@@ -61,7 +54,7 @@ class InterfaceGraphique:
                 )
                 self.objects[f] = fid
 
-            # mise à jour de la position
+            # met à jour la position
             self.canvas.coords(
                 self.objects[f],
                 f.pos_x * self.taille_pixel,
@@ -71,7 +64,7 @@ class InterfaceGraphique:
             )
 
     def dessiner_predateurs(self):
-        """Ajoute ou met à jour les prédateurs sur le canvas."""
+        # Ajoute ou met à jour les prédateurs sur le canvas
         for p in self.env.predateurs:
             if p not in self.objects:
                 pid = self.canvas.create_oval(
@@ -92,11 +85,8 @@ class InterfaceGraphique:
                 (p.pos_y + 1) * self.taille_pixel
             )
 
-    # ---------------------------------------------------------
-    #                       BOUCLE DE RENDER
-    # ---------------------------------------------------------
     def update(self):
-        """Met à jour toutes les entités vivantes."""
+        # Met à jour toutes les êtres vivants
         self.dessiner_fourmis()
         self.dessiner_predateurs()
         self.fenetre.update()
