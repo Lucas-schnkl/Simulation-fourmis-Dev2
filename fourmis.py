@@ -108,16 +108,17 @@ class Fourmis:
         pass
 
     def se_deplacer(self):
+        from main import env
+
         directions = [(0,1), (0,-1), (1,0), (-1,0)]
         choix = []
 
         pos_actuelle = self._pos_x, self._pos_y
         self.chemin_retour.append(pos_actuelle)
-        """vérifier si ça fonctionne"""
 
         for x,y in directions:
             depla_x, depla_y = self.pos_x + x, self.pos_y + y
-            if 0 <= depla_x <= taille and 0 <= depla_y <= taille:
+            if 0 <= depla_x <= env.taille_grille and 0 <= depla_y <= env.taille_grille:
                 choix.append([depla_x,depla_y])
 
         if choix:
@@ -292,19 +293,23 @@ class Larve(Fourmis):
     @croissance.setter
     def croissance(self,x):
         self._croissance = x
+
+        #larve se métamorphose en un type de fourmi quand elle a assez mangé
         if self._croissance >= 100:
             self._croissance = 100
-            self.eclore()
+            self.metamorphose()
 
     def developpement(self,x):
+        #augmente développement de la larve à chaque fois qu'elle mange
         self.croissance += x
 
-    def eclore(self):
+    def metamorphose(self):
         global nbr_fourmis
         nbr_fourmis += 1
 
+        # pourcentages de chances de se transformer en chaque type de fourmis
         options=["Reine", "Soldat", "Ouvriere"]
-        chances=[1,9.5,89.5] #pourcentages de chances de chaque type de fourmis
+        chances=[1,9.5,89.5]
 
         #choix au hasard nouvelle fourmis
         nouvelle_fourmis = random.choices(options, weights=chances, k=1)[0]
