@@ -1,4 +1,3 @@
-#class sources nourriture
 class SourceNourriture:
     def __init__(self, pos_x:int, pos_y:int, statut:str="plein",quantite:int=250, couleur="#00FF4D"):
         self._quantite = quantite
@@ -16,9 +15,8 @@ class SourceNourriture:
     def quantite(self,x):
         self._quantite = x
 
-    #diminue quantite de nourriture restante quand fourmis
-    #viennent en chercher
     def perd_nourriture(self,x):
+        # diminue quantité de nourriture restante quand fourmis viennent en chercher
         self.quantite -= x
         if self._quantite <= 0:
             self._quantite = 0
