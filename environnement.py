@@ -18,15 +18,16 @@ class Environnement:
         ]
 
         self.nid = None
-        self.sources = []
-        self.fourmis = []
-        self.predateurs = []
+        self.sources = [] # liste de toutes les sources de nourritures
+        self.fourmis = [] # liste de toutes les fourmis
+        self.predateurs = [] #liste de tous les prédateurs
 
     def ajouter_nid(self, nid):
         self.nid = nid
 
     def ajouter_source(self, source):
         self.sources.append(source)
+
 
     def ajouter_fourmi(self, fourmi):
         self.fourmis.append(fourmi)
