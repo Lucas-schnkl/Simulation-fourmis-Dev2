@@ -1,13 +1,5 @@
 import random
 
-#met toutes fourmis dans dico
-colonie = {}
-nbr_fourmis = 0
-
-#mettre sources dans dico ?
-sources = {}
-nbr_source = 0
-
 class Fourmis:
     def __init__(self,
                  chemin_retour:list = [],
@@ -107,22 +99,18 @@ class Fourmis:
     def developpement(self,x):
         pass
 
-    def se_deplacer(self):
-        from main import env
+    def se_deplacer(self, env):
+        # Choisit direction au hasard
+        dx = random.choice([-1, 0, 1])
+        dy = random.choice([-1, 0, 1])
 
-        directions = [(0,1), (0,-1), (1,0), (-1,0)]
-        choix = []
+        # met nouvelles coordonnées dans variables temporaires
+        nx = self.pos_x + dx
+        ny = self.pos_y + dy
 
-        pos_actuelle = self._pos_x, self._pos_y
-        self.chemin_retour.append(pos_actuelle)
-
-        for x,y in directions:
-            depla_x, depla_y = self.pos_x + x, self.pos_y + y
-            if 0 <= depla_x <= env.taille_grille and 0 <= depla_y <= env.taille_grille:
-                choix.append([depla_x,depla_y])
-
-        if choix:
-            self.pos_x, self.pos_y = random.choices(choix, k=1)[0]
+        # applique changements de position
+        self.pos_x = nx
+        self.pos_y = ny
 
     def trouve_nourriture(self, liste_sources):
         for source in liste_sources:
