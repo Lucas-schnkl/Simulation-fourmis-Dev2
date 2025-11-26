@@ -1,3 +1,5 @@
+import random
+
 class Simulation:
     def __init__(self, environnement, interface):
         self.env = environnement
@@ -5,26 +7,29 @@ class Simulation:
         self._interface = interface
 
     def boucle(self):
+        if not self.en_cours:
+            return
+
+        # dessin état statique
         self._interface.dessiner_static()
-        while self.en_cours:
-            # Déplacement fourmis
-            for f in self.env.fourmis:
-                # boucle sur chaque fourmis pour qu'elle trouve de la nourriture (déplacement)
-                f.se_deplacer()
-                self._interface.update()
 
-            # boucle sur chaque prédateur pour chasse (déplacement)
-            for p in self.env.predateurs:
-                p.chasser()
-                self._interface.update()
+        # déplacement fourmis
+        for f in self.env.fourmis:
+            f.se_deplacer(self.env)
+            f.trouve_nourriture(self.env.sources)
 
-            # Evaporation phéromones
-            self.env.evaporation()
-            self._interface.update()
+        # déplacement prédateurs
+        for p in self.env.predateurs:
+            p.chasser()
 
-            # Mise à jour du nid
-            if self.env.nid:
-                self.env.nid.cycle_interne()
-                self._interface.update()
+        # evaporation
+        self.env.evaporation()
 
-"""Faire appels de temps en pour ajouter prédateurs et autres sources ?"""
+        # update interface
+        self._interface.update()
+
+        # relancer la boucle dans 30 ms acr tkinter aime pas boucle infini donc fait équivalent
+        self._interface.fenetre.after(30, self.boucle)
+
+
+"""ajouter prédateurs et autres sources de temps en temps"""
