@@ -21,12 +21,13 @@ def main():
     # Ajouter fourmis
     for _ in range(50):
         env.ajouter_fourmi(Ouvriere(vie=100, pos_x=50, pos_y=50, pheromones="", statut="vivante", nourriture=100))
+        """Mettre positions de départ différentes"""
 
     env.ajouter_fourmi(Reine(vie=100, statut="vivante", pheromones="", pos_x=40, pos_y=40, nourriture=100))
     env.ajouter_fourmi(Soldat(pos_x=55, pos_y=55))
 
     # Ajouter sources nourriture
-    env.ajouter_source(SourceNourriture(10, 20, quantite=200))
+    env.ajouter_source(SourceNourriture(45, 45, quantite=200))
 
     # Ajouter prédateurs
     env.ajouter_predateur(Predateur(pos_x=70, pos_y=70))
@@ -34,6 +35,10 @@ def main():
     # Lancer simulation
     sim = Simulation(env,interface)
     sim.boucle()
+
+    # garde la fenêtre de la simulation ouverte
+    interface.fenetre.mainloop()
+
 
 if __name__ == "__main__":
     main()
