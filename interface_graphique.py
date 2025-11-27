@@ -26,7 +26,7 @@ class InterfaceGraphique:
             n.pos_y * self.taille_pixel,
             (n.pos_x + 1) * self.taille_pixel,
             (n.pos_y + 1) * self.taille_pixel,
-            fill="brown"
+            fill= self.env.nid.couleur
         )
         self.objects[n] = nid_id
 
@@ -37,7 +37,7 @@ class InterfaceGraphique:
                 s.pos_y * self.taille_pixel,
                 (s.pos_x + 1) * self.taille_pixel,
                 (s.pos_y + 1) * self.taille_pixel,
-                fill="green"
+                fill=s._couleur
             )
             self.objects[s] = sid
 
@@ -50,7 +50,7 @@ class InterfaceGraphique:
                     f.pos_y * self.taille_pixel,
                     (f.pos_x + 1) * self.taille_pixel,
                     (f.pos_y + 1) * self.taille_pixel,
-                    fill="black"
+                    fill=f._couleur
                 )
                 self.objects[f] = fid
 

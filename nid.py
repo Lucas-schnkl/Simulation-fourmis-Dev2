@@ -2,7 +2,7 @@ import random
 
 
 class Nid:
-    def __init__(self, pos_x: int,pos_y: int, couleur = "#000000", taille : int = 20, capacite: int = 500):
+    def __init__(self, pos_x: int,pos_y: int, couleur = "#ff7f00", taille : int = 20, capacite: int = 500):
         # Position du nid
         self._pos_x = pos_x
         self._pos_y = pos_y
