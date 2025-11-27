@@ -48,6 +48,9 @@ class SourceNourriture:
     def pos_y(self, y):
         self._pos_y = y
 
+    @property
+    def couleur(self):
+        return self._couleur
 
     def disparaitre(self):
         pass
