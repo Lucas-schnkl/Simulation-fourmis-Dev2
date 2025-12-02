@@ -5,6 +5,7 @@ from fourmis import Ouvriere, Soldat, Reine
 from prédateurs import Predateur
 from source_nourriture import SourceNourriture
 from interface_graphique import InterfaceGraphique
+import random
 
 
 # Création environnement
@@ -27,7 +28,18 @@ def main():
     env.ajouter_fourmi(Soldat(pos_x=55, pos_y=55))
 
     # Ajouter sources nourriture
-    env.ajouter_source(SourceNourriture(45, 45, quantite=200))
+    nbr_sources = 5
+    taille_env = 100
+
+    for _ in range(nbr_sources):
+        while True:
+            x = random.randint(0, taille_env - 1)
+            y = random.randint(0, taille_env - 1)
+
+            if (x, y) != (30, 30): # spawn pas sur le nid
+                break
+
+        env.ajouter_source(SourceNourriture(x, y, quantite=200))
 
     # Ajouter prédateurs
     env.ajouter_predateur(Predateur(pos_x=70, pos_y=70))

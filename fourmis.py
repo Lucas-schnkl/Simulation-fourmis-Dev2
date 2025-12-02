@@ -1,4 +1,6 @@
 import random
+from nid import Nid
+
 
 class Fourmis:
     def __init__(self,
@@ -169,11 +171,12 @@ class Fourmis:
                     case_phero.deposer_pheromones("nourriture", self._transport_nourriture / 10)
                 self.retourner_au_nid()
             else:
-                nid.ajouter_nourriture(self._transport_nourriture)
+                Nid.ajouter_nourriture(self._transport_nourriture)
                 self._transport_nourriture = 0
                 self.mode_retour = False
 
 #differentes pheromones et la quantitée
+
 class Pheromones:
     def __init__(self):
         self._type_pheromones = {
