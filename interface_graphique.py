@@ -1,4 +1,5 @@
 import tkinter as tk
+from fourmis import Pheromones
 
 class InterfaceGraphique:
     def __init__(self, env, taille_pixel=10):
@@ -14,6 +15,14 @@ class InterfaceGraphique:
         self.canvas.pack()
 
         self.objects = {}
+
+        #grille de pheromones
+        self.grille_phero = []
+        for y in range(self.taille):
+            ligne = []
+            for x in range(self.taille):
+                ligne.append(Pheromones())
+            self.grille_phero.append(ligne)
 
 
     def dessiner_static(self):
@@ -83,6 +92,17 @@ class InterfaceGraphique:
                 p.pos_y * self.taille_pixel,
                 (p.pos_x + 1) * self.taille_pixel,
                 (p.pos_y + 1) * self.taille_pixel
+            )
+
+    def dessiner_sources(self):
+        for source in self.env.sources:
+            self.canvas.create_rectangle(
+                source.pos_x * self.taille_pixel,
+                source.pos_y * self.taille_pixel,
+                (source.pos_x + 1) * self.taille_pixel,
+                (source.pos_y + 1) * self.taille_pixel,
+                fill=source.couleur,
+                outline=""
             )
 
     def update(self):

@@ -13,6 +13,9 @@ class Simulation:
         # dessin état statique
         self._interface.dessiner_static()
 
+        # dessin sources de nourriture
+        self._interface.dessiner_sources()
+
         # déplacement fourmis
         for f in self.env.fourmis:
             f.se_deplacer(self.env)
