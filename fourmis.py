@@ -1,13 +1,5 @@
 import random
 
-#met toutes fourmis dans dico
-colonie = {}
-nbr_fourmis = 0
-
-#mettre sources dans dico ?
-sources = {}
-nbr_source = 0
-
 class Fourmis:
     def __init__(self,
                  chemin_retour:list = [],
@@ -107,40 +99,43 @@ class Fourmis:
     def developpement(self,x):
         pass
 
-    def se_deplacer(self):
-        directions = [(0,1), (0,-1), (1,0), (-1,0)]
-        choix = []
+    def se_deplacer(self, env):
+        # Choisit direction au hasard
+        dx = random.choice([-1, 0, 1])
+        dy = random.choice([-1, 0, 1])
 
-        pos_actuelle = self._pos_x, self._pos_y
-        self.chemin_retour.append(pos_actuelle)
-        """vérifier si ça fonctionne"""
+        # met nouvelles coordonnées dans variables temporaires
+        nx = self.pos_x + dx
+        ny = self.pos_y + dy
 
-        for x,y in directions:
-            depla_x, depla_y = self.pos_x + x, self.pos_y + y
-            if 0 <= depla_x <= taille and 0 <= depla_y <= taille:
-                choix.append([depla_x,depla_y])
+        # applique changements de position
+        self.pos_x = nx
+        self.pos_y = ny
 
-        if choix:
-            self.pos_x, self.pos_y = random.choices(choix, k=1)[0]
+    def trouve_nourriture(self, liste_sources):
+        for source in liste_sources:
+            if self._pos_x == source.pos_x and self._pos_y == source.pos_y:
 
+                if self._nourriture < 80:
+                    quantite_manger = source.quantite * 0.05
+                    self.manger(quantite_manger)
+                else:
+                    quantite_manger = 0
 
-    def trouve_nourriture(self, source):
-        #si pos actuelle = pos nourriture => retourner au nid en déposant phéromones sur le chemin
-        if self._pos_x == source.pos_x and self._pos_y == source.pos_y:
-            if self._nourriture < 80:
-                quantite_manger=source.quantite * 0.05
-                self.manger(quantite_manger)
-            else: quantite_manger=0
+                quantite_dispo = source.quantite - quantite_manger
+                quantite_a_transporter = min(
+                    quantite_dispo,
+                    self._capacite_transport - self._transport_nourriture
+                )
+                self._transport_nourriture += quantite_a_transporter
 
-            quantite_dispo = source.quantite - quantite_manger
-            quantite_a_transporter = min(quantite_dispo, self._capacite_transport - self._transport_nourriture)
-            self._transport_nourriture += quantite_a_transporter
+                source.perd_nourriture(quantite_manger + quantite_a_transporter)
 
-            source.perd_nourriture(quantite_manger + quantite_a_transporter) #retire a la source la quantité prise
+                self.mode_retour = True
+                self._chemin_retour.append((self._pos_x, self._pos_y))
+                return True  # nourriture trouvée
 
-            self.mode_retour=True
-            self._chemin_retour.append((self._pos_x, self._pos_y))
-            pass
+        return False  # aucune source à cette position
 
     def trouve_danger(self):
         #déposer phéromones en retournant au nid ?
@@ -286,19 +281,23 @@ class Larve(Fourmis):
     @croissance.setter
     def croissance(self,x):
         self._croissance = x
+
+        #larve se métamorphose en un type de fourmi quand elle a assez mangé
         if self._croissance >= 100:
             self._croissance = 100
-            self.eclore()
+            self.metamorphose()
 
     def developpement(self,x):
+        #augmente développement de la larve à chaque fois qu'elle mange
         self.croissance += x
 
-    def eclore(self):
+    def metamorphose(self):
         global nbr_fourmis
         nbr_fourmis += 1
 
+        # pourcentages de chances de se transformer en chaque type de fourmis
         options=["Reine", "Soldat", "Ouvriere"]
-        chances=[1,9.5,89.5] #pourcentages de chances de chaque type de fourmis
+        chances=[1,9.5,89.5]
 
         #choix au hasard nouvelle fourmis
         nouvelle_fourmis = random.choices(options, weights=chances, k=1)[0]
@@ -313,63 +312,3 @@ class Larve(Fourmis):
 
         """supprimer cette instance pour faire moins
          1 larve vu qu'elle vient d'éclore ?"""
-
-
-#class sources nourriture
-class SourceNourriture:
-    def __init__(self, pos_x:int, pos_y:int, statut:str="plein",quantite:int=250, couleur="#00FF4D"):
-        self._quantite = quantite
-        self._pos_x = pos_x
-        self._pos_y = pos_y
-        self._statut = statut
-        self._couleur = couleur
-
-    #définit quantite de nourriture restante
-    @property
-    def quantite(self):
-        return self._quantite
-
-    @quantite.setter
-    def quantite(self,x):
-        self._quantite = x
-
-    #diminue quantite de nourriture restante quand fourmis
-    #viennent en chercher
-    def perd_nourriture(self,x):
-        self.quantite -= x
-        if self._quantite <= 0:
-            self._quantite = 0
-            self.statut = "vide"
-
-    #définit si source est vide ou non
-    @property
-    def statut(self):
-        return self._statut
-
-    @statut.setter
-    def statut(self,x):
-        self._statut = x
-
-    #définit position de la source
-    @property
-    def pos_x(self):
-        return self._pos_x
-
-    @pos_x.setter
-    def pos_x(self,x):
-        self._pos_x = x
-
-    @property
-    def pos_y(self):
-        return self._pos_y
-
-    @pos_y.setter
-    def pos_y(self, y):
-        self._pos_y = y
-
-
-    def dissparaitre(self):
-        pass
-        #si source vide, faire disparaitre de la carte ?
-
-    """générer source de temps en temps dans un autre fichier ?"""

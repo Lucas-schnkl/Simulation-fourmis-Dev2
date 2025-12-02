@@ -1,9 +1,9 @@
 import tkinter as tk
 import fourmis
-from Nid_fichier import Nid
+from nid import Nid
 import random
 from time import sleep
-
+from source_nourriture import SourceNourriture
 from fourmis import Fourmis
 
 """
@@ -52,7 +52,7 @@ for _ in range(nbr_source_nourriture):
         y = random.randint(0,taille-1)
         if (x,y) != (pos_depart_x,pos_depart_y) and (x,y) != (nid_noir.pos_x,nid_noir.pos_y):
             break
-    s=fourmis.SourceNourriture(pos_x=x,pos_y=y)
+    s=SourceNourriture(pos_x=x,pos_y=y)
     source.append(s)
 for s in source:
     canvas.create_rectangle(
@@ -60,8 +60,6 @@ for s in source:
         s.pos_y*taille_pixel,
         (s.pos_x+1)*taille_pixel,
         (s.pos_y+1)*taille_pixel,
-        fill="#00FF4D",
-        outline="white"
     )
 
 fenetre.mainloop()
