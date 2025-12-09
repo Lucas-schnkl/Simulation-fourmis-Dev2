@@ -1,5 +1,4 @@
 import tkinter as tk
-from fourmis import Pheromones
 
 class InterfaceGraphique:
     def __init__(self, env, taille_pixel=10):
@@ -15,15 +14,6 @@ class InterfaceGraphique:
         self.canvas.pack()
 
         self.objects = {}
-
-        #grille de pheromones
-        self.grille_phero = []
-        for y in range(self.taille):
-            ligne = []
-            for x in range(self.taille):
-                ligne.append(Pheromones())
-            self.grille_phero.append(ligne)
-
 
     def dessiner_static(self):
         # Dessine le décor une seule fois : nid + sources de nourriture
