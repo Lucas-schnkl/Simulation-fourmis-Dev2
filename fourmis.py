@@ -4,6 +4,7 @@ from nid import Nid
 
 class Fourmis:
     def __init__(self,
+                 envi,
                  chemin_retour:list = [],
                  pheromones:str="",
                  pos_x:int="",
@@ -13,8 +14,9 @@ class Fourmis:
                  nourriture:int=100,
                  transport_nourriture:int=0,
                  capacite_transport:int=100,
-                 mode_retour:bool=False,
+                 mode_retour:bool=False
                  ):
+        self._envi = envi
         self._pos_x = pos_x
         self._pos_y = pos_y
         self._nourriture = nourriture
@@ -114,6 +116,13 @@ class Fourmis:
         self.pos_x = nx
         self.pos_y = ny
 
+        # pose phéromones à chaque déplacement
+        """à voir comment définir type de phéromones"""
+        self.deposer_pheromone("type")
+
+    def deposer_pheromone(self, type):
+        self._envi.deposer_pheromone(self.pos_x, self.pos_y, type, 5)
+
     def trouve_nourriture(self, liste_sources):
         for source in liste_sources:
             if self._pos_x == source.pos_x and self._pos_y == source.pos_y:
@@ -175,24 +184,10 @@ class Fourmis:
                 self._transport_nourriture = 0
                 self.mode_retour = False
 
-#differentes pheromones et la quantitée
-
-class Pheromones:
-    def __init__(self):
-        self._type_pheromones = {
-            "nourritures":0.0,
-            "danger":0.0,
-            "nid":0.0,
-        }
-
-    def deposer_pheromones(self,type_pheromones,quantite):
-        self._type_pheromones[type_pheromones] += quantite
-
-
 
 class Reine(Fourmis):
-    def __init__(self, vie,statut,pheromones, pos_x, pos_y,nourriture,mode_retour=False,chemin_retour:list=[],couleur="#F5CC00"):
-        super().__init__(chemin_retour=chemin_retour,pheromones=pheromones,pos_x=pos_x, pos_y=pos_y,
+    def __init__(self, envi, vie,statut,pheromones, pos_x, pos_y,nourriture,mode_retour=False,chemin_retour:list=[],couleur="#F5CC00"):
+        super().__init__(envi=envi, chemin_retour=chemin_retour,pheromones=pheromones,pos_x=pos_x, pos_y=pos_y,
                          statut=statut,vie=vie,nourriture=nourriture,mode_retour=mode_retour)
         self._couleur = couleur
 
@@ -205,8 +200,8 @@ class Reine(Fourmis):
 
 
 class Ouvriere(Fourmis):
-    def __init__(self, vie, pos_x,pos_y, pheromones, statut, nourriture,mode_retour=False,chemin_retour:list=[],couleur="#000000"):
-        super().__init__(chemin_retour=chemin_retour,pheromones=pheromones,pos_x=pos_x, pos_y=pos_y,
+    def __init__(self,envi, vie, pos_x,pos_y, pheromones, statut, nourriture,mode_retour=False,chemin_retour:list=[],couleur="#000000"):
+        super().__init__(envi=envi, chemin_retour=chemin_retour,pheromones=pheromones,pos_x=pos_x, pos_y=pos_y,
                          statut=statut,vie=vie,nourriture=nourriture,mode_retour=mode_retour)
         self._couleur = couleur
 
@@ -223,6 +218,7 @@ class Ouvriere(Fourmis):
 
 class Soldat(Fourmis):
     def __init__(self,
+                 envi,
                  pos_x,
                  pos_y,
                  mode_retour=False,
@@ -234,7 +230,7 @@ class Soldat(Fourmis):
                  attaque:int=20,
                  couleur="#FF6F00"
                  ):
-        super().__init__(chemin_retour=chemin_retour,pheromones=pheromones,pos_x=pos_x, pos_y=pos_y,
+        super().__init__(envi=envi,chemin_retour=chemin_retour,pheromones=pheromones,pos_x=pos_x, pos_y=pos_y,
                          statut=statut,vie=vie,nourriture=nourriture,mode_retour=mode_retour)
         self._attaque = attaque
         self._couleur = couleur
@@ -261,6 +257,7 @@ class Soldat(Fourmis):
 class Larve(Fourmis):
     def __init__(
         self,
+        envi,
         pos_x,
         pos_y,
         mode_retour=False,
@@ -272,7 +269,7 @@ class Larve(Fourmis):
         croissance:int=0,
         couleur="#FF98EB"
     ):
-        super().__init__(chemin_retour=chemin_retour,pheromones=pheromones,pos_x=pos_x, pos_y=pos_y,
+        super().__init__(envi=envi,chemin_retour=chemin_retour,pheromones=pheromones,pos_x=pos_x, pos_y=pos_y,
                          statut=statut,vie=vie,nourriture=nourriture,mode_retour=mode_retour)
         self._croissance = croissance
         self._couleur = couleur
