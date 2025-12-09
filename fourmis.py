@@ -118,7 +118,7 @@ class Fourmis:
 
         # pose phéromones à chaque déplacement
         """à voir comment définir type de phéromones"""
-        self.deposer_pheromone("type")
+        # self.deposer_pheromone("type")  <-- Ligne commentée pour éviter le crash (KeyError)
 
     def deposer_pheromone(self, type):
         self._envi.deposer_pheromone(self.pos_x, self.pos_y, type, 5)
@@ -190,6 +190,10 @@ class Reine(Fourmis):
         super().__init__(envi=envi, chemin_retour=chemin_retour,pheromones=pheromones,pos_x=pos_x, pos_y=pos_y,
                          statut=statut,vie=vie,nourriture=nourriture,mode_retour=mode_retour)
         self._couleur = couleur
+
+    def se_deplacer(self, env):
+        # doit pas se déplacer et reste au nid
+        pass
 
     def ponte(self):
         global nbr_fourmis
