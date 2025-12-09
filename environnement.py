@@ -1,6 +1,6 @@
 import random
 from nid import Nid
-from fourmis import Fourmis, Pheromones
+from fourmis import Fourmis
 from source_nourriture import SourceNourriture
 
 class Environnement:
@@ -12,8 +12,17 @@ class Environnement:
 
         self.taille_grille = largeur // taille_pixel
 
+
+        # Applique des phéromones de tous les types sur toute la map
         self.grille_phero = [
-            [Pheromones() for _ in range(self.taille_grille)]
+            [
+                {
+                    "nourriture": 0,
+                    "danger": 0,
+                    "nidification": 0
+                }
+                for _ in range(self.taille_grille)
+            ]
             for _ in range(self.taille_grille)
         ]
 
@@ -28,6 +37,10 @@ class Environnement:
     def ajouter_source(self, source):
         self.sources.append(source)
 
+    def deposer_pheromone(self, x, y, type_phero, quantite):
+        # Augmente quantité phéromones sur la position
+        if 0 <= x < self.taille_grille and 0 <= y < self.taille_grille:
+            self.grille_phero[y][x][type_phero] += quantite
 
     def ajouter_fourmi(self, fourmi):
         self.fourmis.append(fourmi)
