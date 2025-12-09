@@ -21,11 +21,11 @@ def main():
 
     # Ajouter fourmis
     for _ in range(50):
-        env.ajouter_fourmi(Ouvriere(vie=100, pos_x=50, pos_y=50, pheromones="", statut="vivante", nourriture=100))
+        env.ajouter_fourmi(Ouvriere(envi = env, vie=100, pos_x=50, pos_y=50, pheromones="", statut="vivante", nourriture=100))
         """Mettre positions de départ différentes"""
 
-    env.ajouter_fourmi(Reine(vie=100, statut="vivante", pheromones="", pos_x=40, pos_y=40, nourriture=100))
-    env.ajouter_fourmi(Soldat(pos_x=55, pos_y=55))
+    env.ajouter_fourmi(Reine(envi = env, vie=100, statut="vivante", pheromones="", pos_x=40, pos_y=40, nourriture=100))
+    env.ajouter_fourmi(Soldat(envi = env, pos_x=55, pos_y=55))
 
     # Ajouter sources nourriture
     nbr_sources = 5
