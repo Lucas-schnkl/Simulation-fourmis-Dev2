@@ -29,17 +29,6 @@ class InterfaceGraphique:
         )
         self.objects[n] = nid_id
 
-        # Sources
-        for s in self.env.sources:
-            sid = self.canvas.create_rectangle(
-                s.pos_x * self.taille_pixel,
-                s.pos_y * self.taille_pixel,
-                (s.pos_x + 1) * self.taille_pixel,
-                (s.pos_y + 1) * self.taille_pixel,
-                fill=s._couleur
-            )
-            self.objects[s] = sid
-
     def dessiner_fourmis(self):
         # Ajoute ou met à jour les fourmis sur le canvas
         for f in self.env.fourmis:
@@ -85,15 +74,18 @@ class InterfaceGraphique:
             )
 
     def dessiner_sources(self):
+        self.canvas.delete("source") #supprime tous les "source" avant de redessiner
         for source in self.env.sources:
-            self.canvas.create_rectangle(
-                source.pos_x * self.taille_pixel,
-                source.pos_y * self.taille_pixel,
-                (source.pos_x + 1) * self.taille_pixel,
-                (source.pos_y + 1) * self.taille_pixel,
-                fill=source.couleur,
-                outline=""
-            )
+            if source.quantite > 0:
+                self.canvas.create_rectangle(
+                    source.pos_x * self.taille_pixel,
+                    source.pos_y * self.taille_pixel,
+                    (source.pos_x + 1) * self.taille_pixel,
+                    (source.pos_y + 1) * self.taille_pixel,
+                    fill=source.couleur,
+                    outline="",
+                    tags="source"  # AJOUT "source" pour la suppression
+                )
 
     def update(self):
         # Met à jour toutes les êtres vivants

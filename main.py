@@ -62,6 +62,7 @@ def main():
     env.ajouter_predateur(Predateur(pos_x=70, pos_y=70))
 
     # Lancer simulation
+    interface.dessiner_static()
     sim = Simulation(env,interface)
     sim.boucle()
 

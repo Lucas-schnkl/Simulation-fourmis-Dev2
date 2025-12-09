@@ -104,6 +104,9 @@ class Fourmis:
         pass
 
     def se_deplacer(self, env):
+        if self._mode_retour:
+            self.retourner_au_nid()
+            return
         # Choisit direction au hasard
         dx = random.choice([-1, 0, 1])
         dy = random.choice([-1, 0, 1])
@@ -115,6 +118,13 @@ class Fourmis:
         # applique changements de position
         self.pos_x = nx
         self.pos_y = ny
+        #verif que la fourmis est dans la grille
+        if self._envi and (0 <= nx < self._envi.taille_grille) and (0 <= ny < self._envi.taille_grille):
+            # Enregistre la position actuelle AVANT de bouger (pour le chemin de retour)
+            self._chemin_retour.append((self.pos_x, self.pos_y))
+
+            self.pos_x = nx
+            self.pos_y = ny
 
         # pose phéromones à chaque déplacement
         """à voir comment définir type de phéromones"""
@@ -143,7 +153,6 @@ class Fourmis:
                 source.perd_nourriture(quantite_manger + quantite_a_transporter)
 
                 self.mode_retour = True
-                self._chemin_retour.append((self._pos_x, self._pos_y))
                 return True  # nourriture trouvée
 
         return False  # aucune source à cette position
@@ -171,18 +180,20 @@ class Fourmis:
         self._chemin_retour = nouveau_chemin
 
     def retourner_au_nid(self):
-        if self._mode_retour:
-            if self._chemin_retour:
-                pos_precedente = self._chemin_retour.pop()
-                self.pos_x, self.pos_y = pos_precedente
-                case_phero = grille_phero[self.pos_y][self.pos_x]
+        if not self._chemin_retour:
+            # Si le chemin est vide, la fourmi est arrivée (aux coordonnées du Nid)
+            nid_instance = self._envi.nid
+            if nid_instance and (self.pos_x == nid_instance.pos_x and self.pos_y == nid_instance.pos_y):
+                # Dépose la nourriture
                 if self._transport_nourriture > 0:
-                    case_phero.deposer_pheromones("nourriture", self._transport_nourriture / 10)
-                self.retourner_au_nid()
-            else:
-                Nid.ajouter_nourriture(self._transport_nourriture)
-                self._transport_nourriture = 0
+                    nid_instance.ajouter_nourriture(self._transport_nourriture)
+                    self._transport_nourriture = 0
                 self.mode_retour = False
+            else:
+                self.mode_retour = False
+            return
+        pos_precedente = self._chemin_retour.pop()
+        self.pos_x, self.pos_y = pos_precedente
 
 
 class Reine(Fourmis):

@@ -51,6 +51,11 @@ class Environnement:
     def evaporation(self):
         pass
 
+    def evaporation(self):
+        # retire les sources dont la quantité est nulle de la liste
+        self.sources = [s for s in self.sources if s.quantite > 0]
+        pass
+
     def generer_sources(self):
         # génère source de nourriture à position aléatoire
         for _ in range(self.nb_sources):
@@ -64,3 +69,4 @@ class Environnement:
                     break
 
             self.sources.append(SourceNourriture(pos_x=x, pos_y=y))
+

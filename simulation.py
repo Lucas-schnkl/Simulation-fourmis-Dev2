@@ -11,7 +11,7 @@ class Simulation:
             return
 
         # dessin état statique
-        self._interface.dessiner_static()
+        #self._interface.dessiner_sources() ,il est dans le main mtn
 
         # dessin sources de nourriture
         self._interface.dessiner_sources()
@@ -19,7 +19,8 @@ class Simulation:
         # déplacement fourmis
         for f in self.env.fourmis:
             f.se_deplacer(self.env)
-            f.trouve_nourriture(self.env.sources)
+            if not f.mode_retour:
+                f.trouve_nourriture(self.env.sources)
 
         # déplacement prédateurs
         for p in self.env.predateurs:
