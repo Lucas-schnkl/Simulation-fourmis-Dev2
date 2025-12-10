@@ -1,5 +1,6 @@
 class Nid:
-    def __init__(self, pos_x: int,pos_y: int, couleur = "#ff7f00", quantite_nourriture = 0):
+    def __init__(self, envi, pos_x: int,pos_y: int, couleur = "#ff7f00", quantite_nourriture = 0):
+        self._envi = envi
         self._pos_x = pos_x
         self._pos_y = pos_y
         self._couleur = couleur
