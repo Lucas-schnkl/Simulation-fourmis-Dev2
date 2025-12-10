@@ -70,3 +70,8 @@ class Environnement:
 
             self.sources.append(SourceNourriture(pos_x=x, pos_y=y))
 
+    def supprimer_source(self, source):
+        # Retire la source de la liste des sources de l'environnement
+        if source in self.sources:
+            self.sources.remove(source)
+            print("Source retirée de l'environnement")
