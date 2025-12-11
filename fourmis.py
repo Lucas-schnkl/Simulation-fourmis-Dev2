@@ -86,16 +86,16 @@ class Fourmis:
 
         for source in env.sources:
             #utilise _pos_x car SourceNourriture a pas de property pos_x
-            d = math.sqrt((self.pos_x - source._pos_x)**2 + (self.pos_y - source._pos_y)**2)
+            d = math.sqrt((self.pos_x - source.pos_x)**2 + (self.pos_y - source.pos_y)**2)
 
             if d <= 5 and d < dist_min:
                 dist_min = d
                 source_proche = source
 
             if source_proche:
-                self._aller_vers_cible(source_proche._pos_x, source_proche._pos_y)
+                self._aller_vers_cible(source_proche.pos_x, source_proche.pos_y)
                 if dist_min <= 1:
-                    source_proche.compteur = 1 #la fourmis prend 1 de la source à voir comment le mettre dans source nourriture
+                    source_proche.compteur -= 1 #la fourmis prend 1 de la source à voir comment le mettre dans source nourriture
                     self.retour = True
                     self.retourner_au_nid(env)
                 return
@@ -181,7 +181,17 @@ class Fourmis:
             nid.ajouter_nourriture(1)
             self._retour = False
 
-    def prendre_nourriture(self, env):
-        pass
+    class Soldat(Fourmis) :
+        liste_soldats = []
 
+        def __init__(self, pos_x: int, pos_y: int, pheromones: str = "aucun", retour: bool = False, couleur="#0000FF", vivante: bool = True):
 
+            super().__init__(pos_x, pos_y, pheromones, retour, couleur, vivante)
+
+            Soldat.liste_soldats.append(self)
+
+        def __repr__(self):
+            return f"Soldat(x={self.pos_x}, y={self.pos_y})"
+
+        def deposer_pheromones_danger(self,env):
+            pass
