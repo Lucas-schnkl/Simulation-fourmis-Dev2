@@ -1,4 +1,5 @@
 import math
+import random
 
 class Fourmis:
     def __init__(self, pos_x:int, pos_y:int, pheromones: str, retour:bool=False, couleur="#000000", vivante:bool=True):
@@ -78,7 +79,83 @@ class Fourmis:
         if self._retour:
             self.retourner_au_nid(env)
             return
-        # (Ici code pour la recherche si retour est False)
+        #Mode Explo
+        #Détect NOURRITURE
+        source_proche = None
+        dist_min = 6 #5 pixel de range
+
+        for source in env.sources:
+            #utilise _pos_x car SourceNourriture a pas de property pos_x
+            d = math.sqrt((self.pos_x - source._pos_x)**2 + (self.pos_y - source._pos_y)**2)
+
+            if d <= 5 and d < dist_min:
+                dist_min = d
+                source_proche = source
+
+            if source_proche:
+                self._aller_vers_cible(source_proche._pos_x, source_proche._pos_y)
+                if dist_min <= 1:
+                    source_proche.compteur = 1 #la fourmis prend 1 de la source à voir comment le mettre dans source nourriture
+                    self.retour = True
+                    self.retourner_au_nid(env)
+                return
+
+    # DÉPLACEMENT PHÉROMONES ET ALÉATOIRE
+        meilleur_dx, meilleur_dy = 0, 0
+        meilleur_score = -float('inf')
+    # Liste déplacements possibles (dx, dy)
+        voisins = [
+            (-1, -1), (0, -1), (1, -1),
+            (-1, 0), (1, 0),
+            (-1, 1), (0, 1), (1, 1)
+        ]
+        random.shuffle(voisins)
+
+        mouvement_trouve = False
+
+        for dx, dy in voisins:
+            nx = self.pos_x + dx
+            ny = self.pos_y + dy
+
+            # Vérif qu'on reste dans la grille
+            if 0 <= nx < env.taille_grille and 0 <= ny < env.taille_grille:
+                # Récup des phéromones
+                phero_nourriture = env.grille_phero[ny][nx]["nourriture"]
+                phero_danger = env.grille_phero[ny][nx]["danger"]
+
+                #CALCUL DU SCORE DU DÉPLACEMENT
+                # Score de base aléatoire
+                score = random.uniform(0, 1)
+
+                # Si nourriture le score augmente
+                if phero_nourriture > 0:
+                    score += phero_nourriture + 10
+
+                # Si danger le score baisse fort
+                if phero_danger > 0:
+                    score -= (phero_danger * 100)
+
+                #garde mouvement avec le meilleur score
+                if score > meilleur_score:
+                    meilleur_score = score
+                    meilleur_dx, meilleur_dy = dx, dy
+                    mouvement_trouve = True
+
+                #déplacement
+            if mouvement_trouve:
+                self.pos_x += meilleur_dx
+                self.pos_y += meilleur_dy
+
+    def _aller_vers_cible(self, tx, ty): #peut etre utile pour les gardes vers le prédateur
+        if self.pos_x < tx:
+            self.pos_x += 1
+        elif self.pos_x > tx:
+            self.pos_x -= 1
+
+        if self.pos_y < ty:
+            self.pos_y += 1
+        elif self.pos_y > ty:
+            self.pos_y -= 1
 
     def retourner_au_nid(self,env):
         nid = env.nid
@@ -104,5 +181,7 @@ class Fourmis:
             nid.ajouter_nourriture(1)
             self._retour = False
 
+    def prendre_nourriture(self, env):
+        pass
 
 
