@@ -34,4 +34,6 @@ class Simulation:
             # relancer la boucle dans 30 ms acr tkinter aime pas boucle infini donc fait équivalent
             #self._interface.fenetre.after(30, self.boucle)
 
+            # Evapore les phéromones de 25 à chaque fin de boucle
+            self.env.evaporation()
             print("Une boucle de la simulation a tourné")
