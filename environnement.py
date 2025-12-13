@@ -14,22 +14,22 @@ class Environnement:
 
 
         # Applique des phéromones de tous les types sur toute la map
-        self.grille_phero = [
-            [
-                {
+        self.grille_phero = []
+        for y in range(self.taille_grille):
+            ligne = []
+            for x in range(self.taille_grille):
+                ligne.append({
                     "nourriture": 0,
                     "danger": 0,
                     "nidification": 0
-                }
-                for _ in range(self.taille_grille)
-            ]
-            for _ in range(self.taille_grille)
-        ]
+                })
+            self.grille_phero.append(ligne)
 
         self.nid = None
         self.sources = [] # liste de toutes les sources de nourritures
         self.fourmis = [] # liste de toutes les fourmis
         self.predateurs = [] #liste de tous les prédateurs
+
 
     def ajouter_nid(self, nid):
         self.nid = nid
@@ -37,10 +37,14 @@ class Environnement:
     def ajouter_source(self, source):
         self.sources.append(source)
 
-    def deposer_pheromone(self, x, y, type_phero, quantite):
+    def deposer_pheromone(self, x, y, type_phero, quantite = 100):
         # Augmente quantité phéromones sur la position
         if 0 <= x < self.taille_grille and 0 <= y < self.taille_grille:
             self.grille_phero[y][x][type_phero] += quantite
+
+            # Quantité max de phéromones sur une case = 100
+            if self.grille_phero[y][x][type_phero] > 100:
+                self.grille_phero[y][x][type_phero] = 100
 
     def ajouter_fourmi(self, fourmi):
         self.fourmis.append(fourmi)
@@ -49,12 +53,14 @@ class Environnement:
         self.predateurs.append(predateur)
 
     def evaporation(self):
-        pass
+        for y in range(self.taille_grille):
+            for x in range(self.taille_grille):
+                case = self.grille_phero[y][x]
 
-    def evaporation(self):
-        # retire les sources dont la quantité est nulle de la liste
-        self.sources = [s for s in self.sources if s.quantite > 0]
-        pass
+                for type_phero in case:
+                    case[type_phero] -= 25
+                    if case[type_phero] < 0:
+                        case[type_phero] = 0
 
     def generer_sources(self):
         # génère source de nourriture à position aléatoire
