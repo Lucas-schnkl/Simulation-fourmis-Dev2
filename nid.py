@@ -54,11 +54,11 @@ class Nid:
                 # si cases viosines dans la map, les ajoutes aux candidates valides
                 if 0 <= nx < self._envi.taille_grille and 0 <= ny < self._envi.taille_grille and (nx, ny) not in self.cases:
                     voisins.add((nx, ny))
-        return voisins
 
-    def candidates_extension(self):
         # retire les cases qui font déjà partie du nid
-        return self.cases_voisines() - self.cases
+        cases_valides = voisins - self.cases
+        return cases_valides
+
 
     def agrandir(self):
         candidates = list(self.cases_voisines())
