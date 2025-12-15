@@ -6,23 +6,23 @@ import fonctions_utilitaires as fu
 fenetre = tk.Tk()
 fenetre.title("Simulation de fourmis")
 
+"""  Creation de la zone dessinable  """
+canvas = tk.Canvas(fenetre, width=1200, height=750, bg="white")
+canvas.pack()
+
+fu.initialiser_canvas(canvas)
 
 """  Partie consacrée aux bouttons  """
 boutton_emplacement = tk.Frame(fenetre)    #creation de l'emplacement
 boutton_emplacement.pack(pady=10)          #pady : la taille des l'emplacement dedier aux bouttons
 
-boutton_sauvegarde = tk.Button(boutton_emplacement, text="sauvegarde",command=fu.sauvegarde())      #creations de chaque bouttons (le premier boutton a etre cree sera le plus a droite psk side RIGHT)
+boutton_sauvegarde = tk.Button(boutton_emplacement, text="sauvegarde",command=fu.sauvegarde)      #creations de chaque bouttons (le premier boutton a etre cree sera le plus a droite psk side RIGHT)
 boutton_sauvegarde.pack(side=tk.RIGHT, padx=0)
 
-boutton_stop = tk.Button(boutton_emplacement, text="stop",command=fu.stop())
+boutton_stop = tk.Button(boutton_emplacement, text="stop",command=fu.stop)
 boutton_stop.pack(side=tk.RIGHT, padx=0)
 
-boutton_start = tk.Button(boutton_emplacement, text="start",command=fu.start())
+boutton_start = tk.Button(boutton_emplacement, text="start",command=fu.start)
 boutton_start.pack(side=tk.RIGHT, padx=0)
-
-
-"""  Creation de la zone dessinable  """
-canvas = tk.Canvas(fenetre, width=900, height=500, bg="white")
-canvas.pack()
 
 fenetre.mainloop()

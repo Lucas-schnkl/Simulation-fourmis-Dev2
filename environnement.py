@@ -1,23 +1,26 @@
 import random
-from nid import Nid
-from fourmis import Fourmis
 from source_nourriture import SourceNourriture
 
+
 class Environnement:
-    def __init__(self, largeur=750, hauteur=750, taille_pixel=15, nb_sources=5):
+    def __init__(self, largeur=1200, hauteur=750, taille_pixel=10, nb_sources=5):
         self.largeur = largeur
         self.hauteur = hauteur
         self.taille_pixel = taille_pixel
-        self.nb_sources = nb_sources #nombre de sources maximales en même temps
+        self.nb_sources = nb_sources
 
-        self.taille_grille = largeur // taille_pixel # nombre de cases par lignes et par colonnes (46)
+        self.largeur_grille = largeur // taille_pixel
+        self.hauteur_grille = hauteur // taille_pixel
 
+        # NOUVEAU : Compteur pour le nettoyage global
+        self.compteur_sans_manger = 0
+        self.seuil_nettoyage = 500  # Après 500 ticks sans manger, on nettoie tout
 
-        # Applique des phéromones de tous les types sur toute la map
+        # Initialisation de la grille
         self.grille_phero = []
-        for y in range(self.taille_grille):
+        for y in range(self.hauteur_grille):
             ligne = []
-            for x in range(self.taille_grille):
+            for x in range(self.largeur_grille):
                 ligne.append({
                     "nourriture": 0,
                     "danger": 0,
@@ -25,26 +28,66 @@ class Environnement:
                 })
             self.grille_phero.append(ligne)
 
+        self.nids = []
         self.nid = None
-        self.sources = [] # liste de toutes les sources de nourritures
-        self.fourmis = [] # liste de toutes les fourmis
-        self.predateurs = [] #liste de tous les prédateurs
+        self.sources = []
+        self.fourmis = []
+        self.predateurs = []
 
-
-    def ajouter_nid(self, nouveau_nid):
-        self.nid = nouveau_nid
+    def ajouter_nid(self, nid):
+        self.nids.append(nid)
+        self.nid = nid
 
     def ajouter_source(self, source):
         self.sources.append(source)
 
-    def deposer_pheromones(self, x, y, type_phero, quantite = 100):
-        # Augmente quantité phéromones sur la position
-        if 0 <= x < self.taille_grille and 0 <= y < self.taille_grille:
-            self.grille_phero[y][x][type_phero] += quantite
+    # NOUVEAU : Appelé par le nid quand une fourmi ramène à manger
+    def signal_nourriture_apportee(self):
+        self.compteur_sans_manger = 0
 
-            # Quantité max de phéromones sur une case = 100
+    def deposer_pheromone(self, x, y, type_phero, quantite=100):
+        # Bloque le dépôt sur le nid
+        if type_phero == "nourriture" and self.nid:
+            if (x, y) in self.nid.cases:
+                return
+
+        if 0 <= x < self.largeur_grille and 0 <= y < self.hauteur_grille:
+            self.grille_phero[y][x][type_phero] += quantite
             if self.grille_phero[y][x][type_phero] > 100:
                 self.grille_phero[y][x][type_phero] = 100
+
+    def nettoyer_pheromones(self, x, y, rayon, type_phero):
+        for dy in range(-rayon, rayon + 1):
+            for dx in range(-rayon, rayon + 1):
+                nx = x + dx
+                ny = y + dy
+                if 0 <= nx < self.largeur_grille and 0 <= ny < self.hauteur_grille:
+                    self.grille_phero[ny][nx][type_phero] = 0
+
+    # NOUVEAU : Fonction radicale pour tout nettoyer
+    def nettoyer_toutes_pheromones_nourriture(self):
+        print("--- NETTOYAGE GLOBAL DES PISTES (FAMINE) ---")
+        for y in range(self.hauteur_grille):
+            for x in range(self.largeur_grille):
+                self.grille_phero[y][x]["nourriture"] = 0
+
+    def supprimer_piste(self, x1, y1, x2, y2):
+        dist_x = x2 - x1
+        dist_y = y2 - y1
+        steps = max(abs(dist_x), abs(dist_y))
+
+        if steps == 0: return
+
+        dx = dist_x / steps
+        dy = dist_y / steps
+
+        curr_x = float(x1)
+        curr_y = float(y1)
+
+        for _ in range(int(steps)):
+            self.nettoyer_pheromones(int(curr_x), int(curr_y), rayon=4, type_phero="nourriture")
+            curr_x += dx
+            curr_y += dy
 
     def ajouter_fourmi(self, fourmi):
         self.fourmis.append(fourmi)
@@ -53,31 +96,31 @@ class Environnement:
         self.predateurs.append(predateur)
 
     def evaporation(self):
-        for y in range(self.taille_grille):
-            for x in range(self.taille_grille):
-                case = self.grille_phero[y][x]
+        # 1. Gestion du compteur de famine
+        self.compteur_sans_manger += 1
 
+        if self.compteur_sans_manger >= self.seuil_nettoyage:
+            self.nettoyer_toutes_pheromones_nourriture()
+            self.compteur_sans_manger = 0  # On reset après le nettoyage
+
+        # 2. Evaporation classique
+        for y in range(self.hauteur_grille):
+            for x in range(self.largeur_grille):
+                case = self.grille_phero[y][x]
                 for type_phero in case:
                     case[type_phero] -= 25
                     if case[type_phero] < 0:
                         case[type_phero] = 0
 
     def generer_sources(self):
-        # génère source de nourriture à position aléatoire
         for _ in range(self.nb_sources):
             while True:
-                # prends x et y au hasard (de 0 à taille max de la grille)
-                x = random.randint(0, self.taille_grille - 1)
-                y = random.randint(0, self.taille_grille - 1)
-
-                # vérifie que position choisie est pas celle du nid
-                if (x, y) == (self.nid._pos_x, self.nid._pos_y):
+                x = random.randint(0, self.largeur_grille - 1)
+                y = random.randint(0, self.hauteur_grille - 1)
+                if not self.nid or (x, y) != (self.nid.pos_x, self.nid.pos_y):
                     break
-
-                self.sources.append(SourceNourriture(envi=self,pos_x=x, pos_y=y))
+            self.sources.append(SourceNourriture(self, pos_x=x, pos_y=y))
 
     def supprimer_source(self, source):
-        # Retire la source de la liste des sources de l'environnement
         if source in self.sources:
             self.sources.remove(source)
-            print("Source retirée de l'environnement")

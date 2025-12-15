@@ -30,5 +30,5 @@ class TestSourcceNourriture(unittest.TestCase):
         self.assertEqual(self.source_nourriture.compteur, 0)    # rep 0
 
     def test_disparaitre(self):
-        self.source_nourriture.disparaitre()                    #appel la fonction
+        self.source_nourriture.regenerer()                    #appel la fonction
         self.assertNotIn(self.source_nourriture, source_nourriture.SourceNourriture.liste_sources)  #verifie si la class s'y trouve

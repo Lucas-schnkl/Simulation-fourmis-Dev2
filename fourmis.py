@@ -1,8 +1,11 @@
 import math
 import random
+from nid import Nid
+
 
 class Fourmis:
-    def __init__(self, pos_x:int, pos_y:int, pheromones: str, retour:bool=False, couleur="#000000", vivante:bool=True):
+    def __init__(self, pos_x: int, pos_y: int, pheromones: str, retour: bool = False, couleur="#000000",
+                 vivante: bool = True):
         self._pos_x = pos_x
         self._pos_y = pos_y
         self._pheromones = pheromones
@@ -10,13 +13,17 @@ class Fourmis:
         self._couleur = couleur
         self._vivante = vivante
 
-    # --- Les Properties ---
+        # Mémoire pour éviter les demi-tours immédiats
+        self.derniere_pos = None
+
+        # --- Les Properties ---
+
     @property
     def pos_x(self):
         return self._pos_x
 
     @pos_x.setter
-    def pos_x(self,x):
+    def pos_x(self, x):
         self._pos_x = x
 
     @property
@@ -24,7 +31,7 @@ class Fourmis:
         return self._pos_y
 
     @pos_y.setter
-    def pos_y(self,y):
+    def pos_y(self, y):
         self._pos_y = y
 
     @property
@@ -32,7 +39,7 @@ class Fourmis:
         return self._pheromones
 
     @pheromones.setter
-    def pheromones(self,type_phero):
+    def pheromones(self, type_phero):
         self._pheromones = type_phero
 
     @property
@@ -40,7 +47,7 @@ class Fourmis:
         return self._retour
 
     @retour.setter
-    def retour(self,x):
+    def retour(self, x):
         self._retour = x
 
     @property
@@ -48,14 +55,15 @@ class Fourmis:
         return self._couleur
 
     @couleur.setter
-    def couleur(self,new_couleur):
+    def couleur(self, new_couleur):
         self._couleur = new_couleur
 
     @property
-    def vivante(self): return self._vivante
+    def vivante(self):
+        return self._vivante
 
     @vivante.setter
-    def vivante(self,etat: bool):
+    def vivante(self, etat: bool):
         self._vivante = etat
         if not etat:
             self.mort()
@@ -64,51 +72,183 @@ class Fourmis:
         return f"{self._pos_x},{self._pos_y} {self._retour} {self._pheromones} {self._couleur} {self._vivante} "
 
     def mort(self):
-        #fourmi comme non vivante.
         self._vivante = False
 
     def nidifier(self):
-        #agrandire case nid
         pass
 
+    def verifier_limites(self, env):
+        """Sécurité : empêche de sortir de la grille"""
+        if self.pos_x < 0: self.pos_x = 0
+        if self.pos_x >= env.largeur_grille: self.pos_x = env.largeur_grille - 1
+        if self.pos_y < 0: self.pos_y = 0
+        if self.pos_y >= env.hauteur_grille: self.pos_y = env.hauteur_grille - 1
+
     def se_deplacer(self, env):
-        #deplacer la fourmi dans l'environnement
         if not self._vivante:
             return
-        #deplacer la fourmi vers le nid
+
+        pos_actuelle_x = self.pos_x
+        pos_actuelle_y = self.pos_y
+
+        # 1. RETOUR AU NID
         if self._retour:
             self.retourner_au_nid(env)
+            self.verifier_limites(env)
+            self.derniere_pos = None
             return
-        #Mode Explo
-        #Détect NOURRITURE
+
+        # 2. RECHERCHE NOURRITURE (Vue directe)
         source_proche = None
-        dist_min = 6 #5 pixel de range
+        dist_min = 6
 
         for source in env.sources:
-            #utilise _pos_x car SourceNourriture a pas de property pos_x
-            d = math.sqrt((self.pos_x - source.pos_x)**2 + (self.pos_y - source.pos_y)**2)
-
+            d = math.sqrt((self.pos_x - source._pos_x) ** 2 + (self.pos_y - source._pos_y) ** 2)
             if d <= 5 and d < dist_min:
                 dist_min = d
                 source_proche = source
 
-            if source_proche:
-                self._aller_vers_cible(source_proche.pos_x, source_proche.pos_y)
-                if dist_min <= 1:
-                    source_proche.compteur -= 1 #la fourmis prend 1 de la source à voir comment le mettre dans source nourriture
-                    self.retour = True
-                    self.retourner_au_nid(env)
-                return
+        if source_proche:
+            self._aller_vers_cible(source_proche._pos_x, source_proche._pos_y)
+            if dist_min <= 1:
+                source_proche.compteur = 1
+                self.retour = True
+                self.retourner_au_nid(env)
 
-    # DÉPLACEMENT PHÉROMONES ET ALÉATOIRE
+            self.verifier_limites(env)
+            self.derniere_pos = None
+            return
+
+        # 3. EXPLORATION
         meilleur_dx, meilleur_dy = 0, 0
         meilleur_score = -float('inf')
-    # Liste déplacements possibles (dx, dy)
-        voisins = [
-            (-1, -1), (0, -1), (1, -1),
-            (-1, 0), (1, 0),
-            (-1, 1), (0, 1), (1, 1)
-        ]
+
+        voisins = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)]
+        random.shuffle(voisins)
+
+        mouvement_trouve = False
+
+        # --- SOLUTION ANTI-BLOCAGE ---
+        # Calcul de la distance au nid
+        dist_nid = 9999
+        if env.nid:
+            dist_nid = math.sqrt((self.pos_x - env.nid.pos_x) ** 2 + (self.pos_y - env.nid.pos_y) ** 2)
+
+        # Si on est trop proche du nid (< 15 cases), on devient AVEUGLE à la nourriture
+        # Cela force la fourmi à s'éloigner au hasard avant de suivre une piste
+        aveugle_nourriture = (dist_nid < 15)
+
+        for dx, dy in voisins:
+            nx = self.pos_x + dx
+            ny = self.pos_y + dy
+
+            if 0 <= nx < env.largeur_grille and 0 <= ny < env.hauteur_grille:
+
+                score = random.uniform(0, 1)
+
+                phero_nourriture = env.grille_phero[ny][nx]["nourriture"]
+                phero_danger = env.grille_phero[ny][nx]["danger"]
+
+                # Si on n'est pas aveugle, on suit la nourriture
+                if not aveugle_nourriture:
+                    if phero_nourriture > 0:
+                        score += phero_nourriture + 10
+
+                # On fuit toujours le danger
+                if phero_danger > 0:
+                    score -= (phero_danger * 100)
+
+                # Si on est proche du nid (aveugle), on favorise légèrement l'éloignement du centre
+                if aveugle_nourriture and env.nid:
+                    # Petit calcul vectoriel simple : si le mouvement m'éloigne, je gagne des points
+                    dist_future = math.sqrt((nx - env.nid.pos_x) ** 2 + (ny - env.nid.pos_y) ** 2)
+                    if dist_future > dist_nid:
+                        score += 2  # Bonus pour s'éloigner du nid
+
+                # Pénalité mémoire
+                if self.derniere_pos == (nx, ny):
+                    score -= 50
+
+                if score > meilleur_score:
+                    meilleur_score = score
+                    meilleur_dx, meilleur_dy = dx, dy
+                    mouvement_trouve = True
+
+        if mouvement_trouve:
+            self.pos_x += meilleur_dx
+            self.pos_y += meilleur_dy
+            self.derniere_pos = (pos_actuelle_x, pos_actuelle_y)
+
+        self.verifier_limites(env)
+
+    def _aller_vers_cible(self, tx, ty):
+        if self.pos_x < tx:
+            self.pos_x += 1
+        elif self.pos_x > tx:
+            self.pos_x -= 1
+        if self.pos_y < ty:
+            self.pos_y += 1
+        elif self.pos_y > ty:
+            self.pos_y -= 1
+
+    def retourner_au_nid(self, env):
+        nid = env.nid
+        nid_x = nid.pos_x
+        nid_y = nid.pos_y
+
+        if self._pos_x < nid_x:
+            self._pos_x += 1
+        elif self._pos_x > nid_x:
+            self._pos_x -= 1
+
+        if self._pos_y < nid_y:
+            self._pos_y += 1
+        elif self._pos_y > nid_y:
+            self._pos_y -= 1
+
+        self.verifier_limites(env)
+
+        sur_le_nid = (self._pos_x, self._pos_y) in nid.cases
+
+        if not sur_le_nid:
+            env.deposer_pheromone(self._pos_x, self._pos_y, "nourriture")
+
+        if self._pos_x == nid_x and self._pos_y == nid_y:
+            nid.ajouter_nourriture(1)
+            self._retour = False
+
+
+class Soldat(Fourmis):
+    liste_soldats = []
+
+    def __init__(self, pos_x: int, pos_y: int, pheromones: str = "aucun", retour: bool = False, couleur="#0000FF",
+                 vivante: bool = True):
+        super().__init__(pos_x, pos_y, pheromones, retour, couleur, vivante)
+        Soldat.liste_soldats.append(self)
+
+    def __repr__(self):
+        return f"Soldat(x={self.pos_x}, y={self.pos_y})"
+
+    def deposer_pheromones_danger(self, env):
+        if not self.vivante: return
+        rayon = 2
+        for dy in range(-rayon, rayon + 1):
+            for dx in range(-rayon, rayon + 1):
+                tx = self.pos_x + dx
+                ty = self.pos_y + dy
+                if 0 <= tx < env.largeur_grille and 0 <= ty < env.hauteur_grille:
+                    env.deposer_pheromone(tx, ty, "danger", 100)
+
+    def se_deplacer(self, env):
+        if not self.vivante: return
+
+        pos_actuelle_x = self.pos_x
+        pos_actuelle_y = self.pos_y
+
+        meilleur_dx, meilleur_dy = 0, 0
+        meilleur_score = -float('inf')
+
+        voisins = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)]
         random.shuffle(voisins)
 
         mouvement_trouve = False
@@ -117,81 +257,42 @@ class Fourmis:
             nx = self.pos_x + dx
             ny = self.pos_y + dy
 
-            # Vérif qu'on reste dans la grille
-            if 0 <= nx < env.taille_grille and 0 <= ny < env.taille_grille:
-                # Récup des phéromones
-                phero_nourriture = env.grille_phero[ny][nx]["nourriture"]
-                phero_danger = env.grille_phero[ny][nx]["danger"]
-
-                #CALCUL DU SCORE DU DÉPLACEMENT
-                # Score de base aléatoire
+            if 0 <= nx < env.largeur_grille and 0 <= ny < env.hauteur_grille:
                 score = random.uniform(0, 1)
 
-                # Si nourriture le score augmente
-                if phero_nourriture > 0:
-                    score += phero_nourriture + 10
+                if self.derniere_pos == (nx, ny):
+                    score -= 50
 
-                # Si danger le score baisse fort
-                if phero_danger > 0:
-                    score -= (phero_danger * 100)
-
-                #garde mouvement avec le meilleur score
                 if score > meilleur_score:
                     meilleur_score = score
                     meilleur_dx, meilleur_dy = dx, dy
                     mouvement_trouve = True
 
-                #déplacement
-            if mouvement_trouve:
-                self.pos_x += meilleur_dx
-                self.pos_y += meilleur_dy
+        if mouvement_trouve:
+            self.pos_x += meilleur_dx
+            self.pos_y += meilleur_dy
+            self.derniere_pos = (pos_actuelle_x, pos_actuelle_y)
 
-    def _aller_vers_cible(self, tx, ty): #peut etre utile pour les gardes vers le prédateur
-        if self.pos_x < tx:
-            self.pos_x += 1
-        elif self.pos_x > tx:
-            self.pos_x -= 1
+        self.verifier_limites(env)
 
-        if self.pos_y < ty:
-            self.pos_y += 1
-        elif self.pos_y > ty:
-            self.pos_y -= 1
 
-    def retourner_au_nid(self,env):
-        nid = env.nid
-        #récupére position nid
-        nid_x = nid.pos_x
-        nid_y = nid.pos_y
+class Reine(Fourmis):
+    def __init__(self, pos_x: int, pos_y: int, pheromones: str = "aucun", retour: bool = False, couleur="#FFD700",
+                 vivante: bool = True):
+        super().__init__(pos_x, pos_y, pheromones, retour, couleur, vivante)
 
-        #mouvement en X (si je suis à gauche, je vais à droite)
-        if self._pos_x < nid_x:
-            self._pos_x += 1
-        elif self._pos_x > nid_x:
-            self._pos_x -= 1
+    def __repr__(self):
+        return f"Reine(x={self.pos_x}, y={self.pos_y})"
 
-        # mouvement en Y
-        if self._pos_y < nid_y:
-            self._pos_y += 1
-        elif self._pos_y > nid_y:
-            self._pos_y -= 1
+    def se_deplacer(self, env):
+        if not self.vivante: return
+        if env.nid:
+            self.pos_x = env.nid.pos_x
+            self.pos_y = env.nid.pos_y
 
-        env.deposer_pheromones(self._pos_x, self._pos_y, "nourriture")
-
-        if self._pos_x == nid_x and self._pos_y == nid_y:
-            nid.ajouter_nourriture(1)
-            self._retour = False
-
-    class Soldat(Fourmis) :
-        liste_soldats = []
-
-        def __init__(self, pos_x: int, pos_y: int, pheromones: str = "aucun", retour: bool = False, couleur="#0000FF", vivante: bool = True):
-
-            super().__init__(pos_x, pos_y, pheromones, retour, couleur, vivante)
-
-            Soldat.liste_soldats.append(self)
-
-        def __repr__(self):
-            return f"Soldat(x={self.pos_x}, y={self.pos_y})"
-
-        def deposer_pheromones_danger(self,env):
-            pass
+            COUT_AGRANDI = 10
+            if env.nid.quantite_nourriture >= COUT_AGRANDI:
+                agrandir_nid = env.nid.consommer_nourriture(COUT_AGRANDI)
+                if agrandir_nid:
+                    env.nid.agrandir()
+                    env.deposer_pheromone(self.pos_x, self.pos_y, "nidification", 100)
