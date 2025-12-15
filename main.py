@@ -9,17 +9,17 @@ import random
 
 
 # Création environnement
-env = Environnement(largeur=100, hauteur=100)
+env = Environnement(largeur=750, hauteur=750)
 
 def main():
     try:
         # Création du nid
-        nid = Nid(envi=env, pos_x=50, pos_y=50)
+        nid = Nid(envi=env, pos_x=20, pos_y=20)
         env.ajouter_nid(nid)
 
         # Ajouter fourmis
         for _ in range(50):
-            env.ajouter_fourmi(Fourmis(envi = env,pos_x=50, pos_y=50, pheromones=""))
+            env.ajouter_fourmi(Fourmis(pos_x=30, pos_y=30, pheromones="nourriture"))
 
         #env.ajouter_fourmi(Reine(envi = env, vie=100, statut="vivante", pheromones="", pos_x=40, pos_y=40, nourriture=100))
         #env.ajouter_fourmi(Soldat(envi = env, pos_x=55, pos_y=55))
@@ -39,7 +39,7 @@ def main():
             env.ajouter_source(SourceNourriture(envi=env, pos_x=x, pos_y=y, compteur=3))
 
         # Ajouter prédateurs
-        env.ajouter_predateur(Predateur(envi=env, pos_x=70, pos_y=70))
+        env.ajouter_predateur(Predateur(envi=env, pos_x=10, pos_y=10))
 
         # Lancer simulation
         sim = Simulation(env)
@@ -48,8 +48,8 @@ def main():
         # garde la fenêtre de la simulation ouverte
         #interface.fenetre.mainloop()
 
-    except:
-        print("Simulation arrêtée manuellement")
+    except Exception as e:
+        print("Simulation arrêtée :", e)
 
     finally:
         resultats(env)
