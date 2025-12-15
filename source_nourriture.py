@@ -7,8 +7,10 @@ class SourceNourriture:
         self._couleur = couleur
         self._compteur = compteur
 
+        self.liste_sources.append(self)         #ne pas oublier cette ligne pour rajouter la classe dans la liste
+
     def __repr__(self):
-        return f"Sources({self.liste_sources}')"
+        return f"SourceNourriture(pos_x={self._pos_x}, pos_y={self._pos_y}, couleur={self._couleur}, compteur={self._compteur})"
 
     @property
     def compteur(self):
@@ -27,4 +29,5 @@ class SourceNourriture:
 
     def disparaitre(self):
         # Supprime la source si le compteur <= 0
-        self._envi.source.supprimer_source(self)
+        self.liste_sources.remove(self)
+       #self._envi.source.supprimer_source(self)  // c'est l'ancien contenu de la fonction si y a un prob

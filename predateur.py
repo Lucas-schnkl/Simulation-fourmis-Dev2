@@ -9,6 +9,8 @@ class Predateur:
         self._couleur = couleur
         self._fuite = fuite
 
+        self.liste_predateurs.append(self)
+
     def __repr__(self):
         return f"Predateur(x={self.pos_x}, y={self.pos_y} , fuite={self._fuite})"
     
