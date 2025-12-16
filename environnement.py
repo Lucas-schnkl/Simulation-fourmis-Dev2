@@ -28,15 +28,13 @@ class Environnement:
                 })
             self.grille_phero.append(ligne)
 
-        self.nids = []
         self.nid = None
         self.sources = []
         self.fourmis = []
         self.predateurs = []
 
-    def ajouter_nid(self, nid):
-        self.nids.append(nid)
-        self.nid = nid
+    def ajouter_nid(self, nouveau_nid):
+        self.nid = nouveau_nid
 
     def ajouter_source(self, source):
         self.sources.append(source)
