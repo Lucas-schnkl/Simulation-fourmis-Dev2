@@ -1,7 +1,7 @@
 import random
 
 class Nid:
-    def __init__(self, envi, pos_x: int,pos_y: int, couleur = "#ff7f00", quantite_nourriture = 0, rayon = 1):
+    def __init__(self, envi, pos_x: int,pos_y: int, couleur = "#ff7f00", quantite_nourriture = 0):
         self._envi = envi
         self._pos_x = pos_x
         self._pos_y = pos_y
@@ -50,19 +50,26 @@ class Nid:
 
     def cases_voisines(self):
         voisins = set()
-        for x, y in self.cases:
-            for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-                nx, ny = x + dx, y + dy
-                # MODIFICATION ICI : on utilise largeur_grille et hauteur_grille
+        for i in self.cases:
+            # cases actuelles du nid
+            x = i[0]
+            y = i[1]
+            # regardes cases voisines
+            for j in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                dx = j[0]
+                dy = j[1]
+                nx = x + dx
+                ny = y + dy
+
                 if 0 <= nx < self._envi.largeur_grille and 0 <= ny < self._envi.hauteur_grille:
                     voisins.add((nx, ny))
-        return voisins
 
-    def candidates_extension(self):
-        return self.cases_voisines() - self.cases
+        # retire les cases qui font déjà partie du nid
+        cases_valides = voisins - self.cases
+        return cases_valides
 
     def agrandir(self):
-        candidates = list(self.candidates_extension())
+        candidates = list(self.cases_voisines())
         if candidates:
             nouvelle_case = random.choice(candidates)
             self.cases.add(nouvelle_case)
