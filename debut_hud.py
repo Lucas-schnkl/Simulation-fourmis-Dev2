@@ -16,6 +16,9 @@ fu.initialiser_canvas(canvas)
 boutton_emplacement = tk.Frame(fenetre)    #creation de l'emplacement
 boutton_emplacement.pack(pady=10)          #pady : la taille des l'emplacement dedier aux bouttons
 
+boutton_recharger = boutton_sauvegarde = tk.Button(boutton_emplacement, text="recharger",command=fu.recharge)
+boutton_sauvegarde.pack(side=tk.RIGHT, padx=0)
+
 boutton_sauvegarde = tk.Button(boutton_emplacement, text="sauvegarde",command=fu.sauvegarde)      #creations de chaque bouttons (le premier boutton a etre cree sera le plus a droite psk side RIGHT)
 boutton_sauvegarde.pack(side=tk.RIGHT, padx=0)
 

@@ -1,5 +1,6 @@
 import random
 from fourmis import Soldat
+import environnement
 
 class Predateur:
     liste_predateurs = []
@@ -42,6 +43,13 @@ class Predateur:
     def fuite(self, valeur):
         self._fuite = valeur
         #print("predateur en fuite")
+
+    def manger(self,env):
+        for fourmis in env.fourmis:
+            diff_x = abs(self.pos_x - fourmis.pos_x)
+            diff_y = abs(self.pos_y - fourmis.pos_y)
+            if (diff_x <= 1 and diff_y <= 1):
+                fourmis.vivante = False
     
     def confrontation(self):
         self.pos_a_fuir = []
@@ -64,7 +72,7 @@ class Predateur:
                 self.fuite = False
                 self.delais = 0
 
-    def se_deplacer(self):
+    def se_deplacer(self, env):
         self.confrontation()
         if not self.fuite:
             # Choisit direction au hasard

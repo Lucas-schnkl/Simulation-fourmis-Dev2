@@ -123,10 +123,11 @@ def boucle_animation():
 
         # Déplacement prédateur
     for p in env.predateurs:
-        p.se_deplacer()
+        p.se_deplacer(env)
+        p.manger(env)
 
         #  Attention évaporation des phéromones (Optionnel : peut être lourd si fait trop souvent)
-        # env.evaporation()
+        #  env.evaporation()        #ils disparaissent trop vite
 
         #Mise à jour graphique
     dessiner_tout()
