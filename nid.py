@@ -9,6 +9,10 @@ class Nid:
         self._quantite_nourriture = quantite_nourriture
         self.cases = set() #listes des cases qui composent le nid (dans un set pour être sûr qu'on a pas 2 fois les mêmes)
         self.cases.add((self._pos_x, self._pos_y))
+        self.larves = []
+
+        self.cases = set()
+        self.cases.add((self._pos_x, self._pos_y))
 
     def __repr__(self):
         return f"Nid({self._quantite_nourriture})"
@@ -40,6 +44,22 @@ class Nid:
         #signale à l'environnement qu'on a mangé, donc pas besoin de nettoyer
         if self._envi:
             self._envi.signal_nourriture_apportee()
+
+        SEUIL_NAISSANCE = 3 # requis pour larve puisse naître
+        from fourmis import Larve
+        if self._quantite_nourriture >= SEUIL_NAISSANCE:
+            self.larves.append(Larve())
+
+    def cycle_de_vie(self):
+        #fait grandir les larves et les transforme en fourmis
+        for larve in self.larves[:]:
+            est_prete = larve.grandir()
+
+            if est_prete:
+                self.larves.remove(larve)
+                from fourmis import Fourmis
+                nouvelle_fourmi = Fourmis(pos_x=self.pos_x, pos_y=self.pos_y, pheromones="nourriture")
+                self._envi.ajouter_fourmi(nouvelle_fourmi) #Création de la fourmi sur le nid
 
     def consommer_nourriture(self, quantite: int):
         if self._quantite_nourriture >= quantite:

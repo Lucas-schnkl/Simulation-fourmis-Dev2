@@ -240,40 +240,104 @@ class Soldat(Fourmis):
                     env.deposer_pheromone(tx, ty, "danger", 100)
 
     def se_deplacer(self, env):
-        if not self.vivante: return
+        # AJOUT : Bloc Try-Except pour la robustesse (Gestion des erreurs)
+        try:
+            if not self._vivante:
+                return
 
-        pos_actuelle_x = self.pos_x
-        pos_actuelle_y = self.pos_y
+            pos_actuelle_x = self.pos_x
+            pos_actuelle_y = self.pos_y
 
-        meilleur_dx, meilleur_dy = 0, 0
-        meilleur_score = -float('inf')
+            # 1. RETOUR AU NID
+            if self._retour:
+                self.retourner_au_nid(env)
+                self.verifier_limites(env)
+                self.derniere_pos = None
+                return
 
-        voisins = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)]
-        random.shuffle(voisins)
+            # 2. RECHERCHE NOURRITURE (Vue directe)
+            source_proche = None
+            dist_min = 6
 
-        mouvement_trouve = False
+            for source in env.sources:
+                d = math.sqrt((self.pos_x - source._pos_x) ** 2 + (self.pos_y - source._pos_y) ** 2)
+                if d <= 5 and d < dist_min:
+                    dist_min = d
+                    source_proche = source
 
-        for dx, dy in voisins:
-            nx = self.pos_x + dx
-            ny = self.pos_y + dy
+            if source_proche:
+                self._aller_vers_cible(source_proche._pos_x, source_proche._pos_y)
+                if dist_min <= 1:
+                    source_proche.compteur = 1
+                    self.retour = True
+                    self.retourner_au_nid(env)
 
-            if 0 <= nx < env.largeur_grille and 0 <= ny < env.hauteur_grille:
-                score = random.uniform(0, 1)
+                self.verifier_limites(env)
+                self.derniere_pos = None
+                return
 
-                if self.derniere_pos == (nx, ny):
-                    score -= 50
+            # 3. EXPLORATION
+            meilleur_dx, meilleur_dy = 0, 0
+            meilleur_score = -float('inf')
 
-                if score > meilleur_score:
-                    meilleur_score = score
-                    meilleur_dx, meilleur_dy = dx, dy
-                    mouvement_trouve = True
+            voisins = [(-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1)]
+            random.shuffle(voisins)
 
-        if mouvement_trouve:
-            self.pos_x += meilleur_dx
-            self.pos_y += meilleur_dy
-            self.derniere_pos = (pos_actuelle_x, pos_actuelle_y)
+            mouvement_trouve = False
 
-        self.verifier_limites(env)
+            # --- SOLUTION ANTI-BLOCAGE ---
+            dist_nid = 9999
+            if env.nid:
+                dist_nid = math.sqrt((self.pos_x - env.nid.pos_x) ** 2 + (self.pos_y - env.nid.pos_y) ** 2)
+
+            aveugle_nourriture = (dist_nid < 15)
+
+            for dx, dy in voisins:
+                nx = self.pos_x + dx
+                ny = self.pos_y + dy
+
+                if 0 <= nx < env.largeur_grille and 0 <= ny < env.hauteur_grille:
+
+                    score = random.uniform(0, 1)
+
+                    phero_nourriture = env.grille_phero[ny][nx]["nourriture"]
+                    phero_danger = env.grille_phero[ny][nx]["danger"]
+
+                    # Si on n'est pas aveugle, on suit la nourriture
+                    if not aveugle_nourriture:
+                        if phero_nourriture > 0:
+                            score += phero_nourriture + 10
+
+                    # On fuit toujours le danger
+                    if phero_danger > 0:
+                        score -= (phero_danger * 100)
+
+                    # Si on est proche du nid (aveugle), on favorise légèrement l'éloignement du centre
+                    if aveugle_nourriture and env.nid:
+                        dist_future = math.sqrt((nx - env.nid.pos_x) ** 2 + (ny - env.nid.pos_y) ** 2)
+                        if dist_future > dist_nid:
+                            score += 2
+
+                    # Pénalité mémoire
+                    if self.derniere_pos == (nx, ny):
+                        score -= 50
+
+                    if score > meilleur_score:
+                        meilleur_score = score
+                        meilleur_dx, meilleur_dy = dx, dy
+                        mouvement_trouve = True
+
+            if mouvement_trouve:
+                self.pos_x += meilleur_dx
+                self.pos_y += meilleur_dy
+                self.derniere_pos = (pos_actuelle_x, pos_actuelle_y)
+
+            self.verifier_limites(env)
+
+        except Exception as e:
+            # En cas d'erreur, on l'affiche mais la simulation continue
+            print(f"Erreur critique sur la fourmi {self} : {e}")
+            self.mort()  # Optionnel : on tue la fourmi buguée pour éviter qu'elle ne spamme l'erreur
 
 
 class Reine(Fourmis):
@@ -296,3 +360,14 @@ class Reine(Fourmis):
                 if agrandir_nid:
                     env.nid.agrandir()
                     env.deposer_pheromone(self.pos_x, self.pos_y, "nidification", 100)
+
+
+class Larve:
+    def __init__(self):
+        # Temps en "ticks" avant de devenir une fourmi (ex: 50 tours)
+        self.temps_eclosion = 50
+
+    def grandir(self):
+        # Diminue le temps restant. Retourne True si prête à éclore.
+        self.temps_eclosion -= 1
+        return self.temps_eclosion <= 0

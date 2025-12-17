@@ -52,7 +52,10 @@ def initialiser_simulation():
     env.generer_sources()
 
     #7 Ajouter un prédateur
-    env.ajouter_predateur(Predateur(envi=env, pos_x=60, pos_y=60))
+    for _ in range(3):  # Changez 3 par le nombre voulu
+        xp = random.randint(10, 100)  # Position aléatoire pour éviter qu'ils soient tous au même endroit
+        yp = random.randint(10, 100)
+        env.ajouter_predateur(Predateur(envi=env, pos_x=xp, pos_y=yp))
 
 def start():
     global simulation_active
@@ -123,6 +126,9 @@ def boucle_animation():
         p.se_deplacer(env)
         p.manger(env)
 
+    if env.nid:
+        env.nid.cycle_de_vie()
+
     #Mise à jour graphique
     dessiner_tout()
 
@@ -181,3 +187,7 @@ def dessiner_tout():
         mon_canvas.create_oval(x, y, x + r, y + r, fill=f.couleur, outline="")
 
     mon_canvas.create_text(50, 20, text=f"Fourmis: {compteur_fourmis}",font=("Arial", 12, "bold"))  # Affiche nombre total en haut à gauche pour vérif
+
+    if env.nid:  # Affichage du compteur de Larves
+        nb_larves = len(env.nid.larves)
+        mon_canvas.create_text(50, 40, text=f"Larves: {nb_larves}", font=("Arial", 10), fill="blue")
