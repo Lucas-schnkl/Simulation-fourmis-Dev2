@@ -44,34 +44,6 @@ class Predateur:
         self._fuite = valeur
         #print("predateur en fuite")
 
-    def manger(self,env):
-        for fourmis in env.fourmis:
-            diff_x = abs(self.pos_x - fourmis.pos_x)
-            diff_y = abs(self.pos_y - fourmis.pos_y)
-            if (diff_x <= 1 and diff_y <= 1):
-                fourmis.vivante = False
-    
-    def confrontation(self):
-        self.pos_a_fuir = []
-        for soldat in Soldat.liste_soldats:
-            diff_x = abs(self.pos_x - soldat.pos_x)
-            diff_y = abs(self.pos_y - soldat.pos_y)
-            
-            if (diff_x <= 1 and diff_y <= 1):
-                self.fuite = True
-                self.delais = 0
-                self.pos_a_fuir = [soldat.pos_x, soldat.pos_y, self.pos_x, self.pos_y]
-
-                #Soldat active phéro de danger
-                soldat.deposer_pheromones_danger(self._envi)
-                break
-
-        if self.fuite:
-            self.delais += 1
-            if self.delais >= 5:
-                self.fuite = False
-                self.delais = 0
-
     def se_deplacer(self, env):
         self.confrontation()
         if not self.fuite:
@@ -112,3 +84,30 @@ class Predateur:
             if 0 <= nx < self._envi.largeur_grille and 0 <= ny < self._envi.hauteur_grille:
                 self.pos_x = nx
                 self.pos_y = ny
+
+
+    def confrontation(self):
+        self.pos_a_fuir = []
+        proches = filter(lambda soldat: abs(self.pos_x - soldat.pos_x) <= 1 and abs(self.pos_y - soldat.pos_y) <= 1,Soldat.liste_soldats) #cette fonction va filtrer les soldats pour garder ceux qui sont à 1 de distance
+
+        soldat_fourmis = next(proches, None) #on va regarder celui qui est le plus proche (le premier)
+
+        if soldat_fourmis:
+            self.fuite = True
+            self.delais = 0
+            self.pos_a_fuir = [soldat_fourmis.pos_x, soldat_fourmis.pos_y, self.pos_x, self.pos_y]
+            soldat_fourmis.deposer_pheromones_danger(self._envi)
+
+        if self.fuite:
+            self.delais += 1
+            if self.delais >= 5:
+                self.fuite = False
+                self.delais = 0
+
+
+    def manger(self,env):
+        for fourmis in env.fourmis:
+            diff_x = abs(self.pos_x - fourmis.pos_x)
+            diff_y = abs(self.pos_y - fourmis.pos_y)
+            if (diff_x <= 1 and diff_y <= 1):
+                fourmis.vivante = False
