@@ -3,8 +3,6 @@ from source_nourriture import SourceNourriture
 
 
 class Environnement:
-    limiter_a_zero = lambda v: max(0, v)
-
     def __init__(self, largeur=1200, hauteur=750, taille_pixel=10, nb_sources=5):
         self.largeur = largeur
         self.hauteur = hauteur
@@ -35,6 +33,9 @@ class Environnement:
         self.fourmis = []
         self.predateurs = []
         self.larves = []
+
+        self.limiter_a_zero = lambda v: max(0, v)
+
 
     def ajouter_nid(self, nouveau_nid):
         self.nid = nouveau_nid
