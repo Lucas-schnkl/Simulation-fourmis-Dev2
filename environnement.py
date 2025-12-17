@@ -3,6 +3,8 @@ from source_nourriture import SourceNourriture
 
 
 class Environnement:
+    limiter_a_zero = lambda v: max(0, v)
+
     def __init__(self, largeur=1200, hauteur=750, taille_pixel=10, nb_sources=5):
         self.largeur = largeur
         self.hauteur = hauteur
@@ -32,6 +34,7 @@ class Environnement:
         self.sources = []
         self.fourmis = []
         self.predateurs = []
+        self.larves = []
 
     def ajouter_nid(self, nouveau_nid):
         self.nid = nouveau_nid
@@ -113,13 +116,16 @@ class Environnement:
             self.compteur_sans_manger = 0  # On reset après le nettoyage
 
         # 2. Evaporation classique
-        for y in range(self.hauteur_grille):
-            for x in range(self.largeur_grille):
-                case = self.grille_phero[y][x]
-                for type_phero in case:
-                    case[type_phero] -= 25
-                    if case[type_phero] < 0:
-                        case[type_phero] = 0
+        try :
+            for y in range(self.hauteur_grille):
+                for x in range(self.largeur_grille):
+                    case = self.grille_phero[y][x]
+                    for type_phero in case:
+
+                        case[type_phero] = self.limiter_a_zero(case[type_phero] - 10)
+
+        except Exception as e:
+            print("Simulation arrêtée :", e)
 
     def generer_sources(self):
         for _ in range(self.nb_sources):
