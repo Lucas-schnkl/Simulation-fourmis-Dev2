@@ -3,7 +3,7 @@ from source_nourriture import SourceNourriture
 
 
 class Environnement:
-    limiter_a_zero = lambda v: max(0, v)
+    limiter_a_zero = lambda self, v: max(0, v)
 
     def __init__(self, largeur=1200, hauteur=750, taille_pixel=10, nb_sources=5):
         self.largeur = largeur
