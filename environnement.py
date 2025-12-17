@@ -128,3 +128,8 @@ class Environnement:
         for source in self.sources:
             if source.compteur > 0:
                 yield source
+
+    def fourmis_type(self, type_classe):        #cette fonction a pour but de nous renvoyer le type des fourmis
+        for f in self.fourmis:
+            if isinstance(f, type_classe) and f.vivante:
+                yield f

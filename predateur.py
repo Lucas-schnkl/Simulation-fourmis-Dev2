@@ -1,5 +1,5 @@
 import random
-from fourmis import Soldat
+from fourmis import Soldat, Fourmis
 import environnement
 
 class Predateur:
@@ -88,8 +88,10 @@ class Predateur:
 
     def confrontation(self):
         self.pos_a_fuir = []
-        proches = filter(lambda soldat: abs(self.pos_x - soldat.pos_x) <= 1 and abs(self.pos_y - soldat.pos_y) <= 1,Soldat.liste_soldats) #cette fonction va filtrer les soldats pour garder ceux qui sont à 1 de distance
-
+        proches = filter(
+            lambda s: abs(self.pos_x - s.pos_x) <= 1 and abs(self.pos_y - s.pos_y) <= 1,        #cette ligne filtre toutes les fourmis soldat qui sont juste a coter du préda
+            self._envi.fourmis_type(Soldat)                                       #cette ligne  a pour but de recuperer le type de fourmis(ici soldat)
+        )
         soldat_fourmis = next(proches, None) #on va regarder celui qui est le plus proche (le premier)
 
         if soldat_fourmis:
@@ -103,11 +105,13 @@ class Predateur:
             if self.delais >= 5:
                 self.fuite = False
                 self.delais = 0
+                print("un prédateur est en fuite")
 
 
     def manger(self,env):
-        for fourmis in env.fourmis:
+        for fourmis in env.fourmis_type(Fourmis):
             diff_x = abs(self.pos_x - fourmis.pos_x)
             diff_y = abs(self.pos_y - fourmis.pos_y)
             if (diff_x <= 1 and diff_y <= 1):
                 fourmis.vivante = False
+                print("un prédateur à manger une fourmie")
