@@ -11,12 +11,19 @@ from predateur import Predateur
 simulation_active = False
 mon_canvas = None
 env = None
+vitesse_simulation = 100 # Variable pour contrôler la vitesse (Défaut: 100ms)
 
 
 def initialiser_canvas(canvas_recu):
     #Récupère le canvas depuis debut_hud.py
     global mon_canvas
     mon_canvas = canvas_recu
+
+def set_vitesse(nouvelle_vitesse):
+    # Change la vitesse de la simulation
+    global vitesse_simulation
+    vitesse_simulation = nouvelle_vitesse
+    print(f"Vitesse réglée à : {nouvelle_vitesse} ms")
 
 def initialiser_simulation():
     #Crée l'environnement, le nid, les fourmis (Code venant de main.py)
@@ -70,16 +77,6 @@ def stop():
 def sauvegarde():
     print("Sauvegarde (pas encore implémenté)")
 
-    #objets = []
-    #for item in canvas.find_all():
-     #   objets.append({
-      #      "type": canvas.type(item),
-       #     "coords": canvas.coords(item),
-        #    "fill": {k: v for k, v in canvas.itemconfig(item).items()}       #le type va contenir la forme (faut pas mettre autre chose que des rectangles ou des ovales), coords les coos, fill la couleur
-       # })
-     # with open("canvas.json", "w", encoding="utf-8") as f:
-     #     json.dump(objets, f, indent=4)
-
 def recharge():
     global mon_canvas
     try:
@@ -111,7 +108,7 @@ def recharge():
 
 def boucle_animation():
     #met à jour le jeu et redessine tout
-    global simulation_active, env, mon_canvas
+    global simulation_active, env, mon_canvas, vitesse_simulation
 
     if not simulation_active:
         return
@@ -126,69 +123,61 @@ def boucle_animation():
         p.se_deplacer(env)
         p.manger(env)
 
-        #  Attention évaporation des phéromones (Optionnel : peut être lourd si fait trop souvent)
-        #  env.evaporation()        #ils disparaissent trop vite
-
-        #Mise à jour graphique
+    #Mise à jour graphique
     dessiner_tout()
 
     #GESTION DE LA VITESSE
-    # 50 ms = Rapide (20 FPS)
-    # 100 ms = Normal (10 FPS)
-    # 200 ms = Lent (5 FPS)
-    mon_canvas.after(100, boucle_animation)
+    # Utilise la variable vitesse_simulation modifiée par les boutons
+    mon_canvas.after(vitesse_simulation, boucle_animation)
 
 
 def dessiner_tout():
-    #Efface et redessine tout l'environnement
+    # Efface et redessine tout l'environnement
     global env, mon_canvas
 
     mon_canvas.delete("all")
 
     taille = env.taille_pixel
 
-    #DESSINELE BORD DE LA CARTE (Cadre Noir)
+    # DESSINELE BORD DE LA CARTE (Cadre Noir)
     largeur_pix = env.largeur_grille * taille
     hauteur_pix = env.hauteur_grille * taille
     mon_canvas.create_rectangle(0, 0, largeur_pix, hauteur_pix, outline="black", width=3)
 
-    #Dessine NID (Orange)
+    # Dessine NID (Orange)
     if env.nid:
         x, y = env.nid.pos_x * taille, env.nid.pos_y * taille
-        #plus grand que les fourmis
+        # plus grand que les fourmis
         mon_canvas.create_rectangle(x, y, x + taille, y + taille, fill=env.nid.couleur, outline="")
-        #dessine cases étendues du nid
+        # dessine cases étendues du nid
         for cx, cy in env.nid.cases:
             px, py = cx * taille, cy * taille
             mon_canvas.create_rectangle(px, py, px + taille, py + taille, fill="#CC6600", outline="")
 
-    #Dessine SOURCES de nourri (Rond Vert)
-    for source in env.sources:
-        x, y = source._pos_x * taille, source._pos_y * taille
-        mon_canvas.create_oval(x, y, x + taille, y + taille, fill="#00FF4D", outline="")
+    # Dessine SOURCES de nourri (Rond Vert)
+    # On utilise le générateur pour ne récupérer que les sources actives
+    sources_a_dessiner = env.generateur_sources_actives()
+
+    infos_sources = list(map(lambda s: (s._pos_x * taille, s._pos_y * taille, s.compteur), sources_a_dessiner))
+
+    for sx, sy, s_valeur in infos_sources:
+        mon_canvas.create_oval(sx, sy, sx + taille, sy + taille, fill="#00FF4D", outline="")
         # Affiche la quantité restante
-        mon_canvas.create_text(x + taille / 2, y + taille / 2, text=str(source.compteur), font=("Arial", 8))
+        mon_canvas.create_text(sx + taille / 2, sy + taille / 2, text=str(s_valeur), font=("Arial", 8))
 
-    #Dessine les PHERO(Carrés très clairs) - Optionnel
-    # for y in range(env.taille_grille):
-    #     for x in range(env.taille_grille):
-    #         if env.grille_phero[y][x]["danger"] > 0:
-    #             px, py = x * taille, y * taille
-    #             mon_canvas.create_rectangle(px, py, px+taille, py+taille, fill="#FFCCCC", outline="") # Rouge pâle
-
-    #Dessine les PREDA (Rond Rouge)
+    # Dessine les PREDA (Rond Rouge)
     for pred in env.predateurs:
         x, y = pred.pos_x * taille, pred.pos_y * taille
         mon_canvas.create_oval(x, y, x + taille, y + taille, fill="red", outline="black", width=2)
 
-    #Dessine FOURMIS (Petits ronds de couleur)
-    compteur_fourmis = 0
-    for f in env.fourmis:
-        if f.vivante:
-            compteur_fourmis += 1
-            x, y = f.pos_x * taille, f.pos_y * taille
-            # La Reine est un peu plus grosse
-            r = taille if isinstance(f, Reine) else taille
-            mon_canvas.create_oval(x, y, x + r, y + r, fill=f.couleur, outline="")
-    mon_canvas.create_text(50, 20, text=f"Fourmis: {compteur_fourmis}", font=("Arial", 12, "bold"))  #Affiche nombre total en haut à gauche pour vérif
+    # Dessine FOURMIS (Petits ronds de couleur)
+    fourmis_vivantes = list(filter(lambda f: f.vivante, env.fourmis))
+    compteur_fourmis = len(fourmis_vivantes)
 
+    for f in fourmis_vivantes:
+        x, y = f.pos_x * taille, f.pos_y * taille
+        # La Reine est un peu plus grosse
+        r = taille if isinstance(f, Reine) else taille
+        mon_canvas.create_oval(x, y, x + r, y + r, fill=f.couleur, outline="")
+
+    mon_canvas.create_text(50, 20, text=f"Fourmis: {compteur_fourmis}",font=("Arial", 12, "bold"))  # Affiche nombre total en haut à gauche pour vérif
