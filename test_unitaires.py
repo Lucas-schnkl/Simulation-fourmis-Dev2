@@ -8,6 +8,7 @@ import predateur
 import source_nourriture as source_nourriture
 import unittest
 
+
 class TestSourcceNourriture(unittest.TestCase):
 
     def setUp(self):                                    #fonction d'initialisation des valeurs
@@ -77,6 +78,78 @@ class TestFourmis(unittest.TestCase):
         self.assertEqual(self.nid.quantite_nourriture, quantite_initiale + 1)
         # Vérifie que la fourmi n'est plus en mode retour
         self.assertFalse(self.fourmi.retour)
+
+class TestEnvironnement(unittest.TestCase):
+
+    def setUp(self):
+        self.env = Environnement(largeur=100, hauteur=100, taille_pixel=10, nb_sources=3)
+
+    def test_ajouter_source(self):
+        s = source_nourriture.SourceNourriture(self.env, pos_x=5, pos_y=5)
+        self.env.ajouter_source(s)
+        self.assertIn(s, self.env.sources)
+
+    def test_deposer_pheromone(self):
+        self.env.deposer_pheromone(2, 3, "nourriture", quantite=50)
+        self.assertEqual(self.env.grille_phero[3][2]["nourriture"], 50)
+
+    def test_evaporation(self):
+        self.env.deposer_pheromone(1, 1, "nourriture", quantite=50)
+        self.env.evaporation()
+        self.assertTrue(self.env.grille_phero[1][1]["nourriture"] <= 50)
+
+    def test_generateur_sources_actives(self):
+        s1 = source_nourriture.SourceNourriture(self.env, 0, 0, compteur=5)
+        s2 = source_nourriture.SourceNourriture(self.env, 1, 1, compteur=0)
+        self.env.sources = [s1, s2]
+        sources_actives = list(self.env.generateur_sources_actives())
+        self.assertIn(s1, sources_actives)
+        self.assertNotIn(s2, sources_actives)
+
+
+class TestNid(unittest.TestCase):
+
+    def setUp(self):
+        # Création d'un petit environnement réel
+        self.env = Environnement(largeur=10, hauteur=10, taille_pixel=1)
+        # Création d'un nid au centre
+        self.nid = Nid(envi=self.env, pos_x=5, pos_y=5, quantite_nourriture=10)
+        self.env.ajouter_nid(self.nid)
+
+    def test_creation_nid(self):
+        self.assertEqual(self.nid.pos_x, 5)
+        self.assertEqual(self.nid.pos_y, 5)
+        self.assertEqual(self.nid.quantite_nourriture, 10)
+        self.assertIn((5, 5), self.nid.cases)
+
+    def test_ajouter_nourriture(self):
+        self.nid.ajouter_nourriture(5)
+        self.assertEqual(self.nid.quantite_nourriture, 15)
+
+    def test_consommer_nourriture_suffisante(self):
+        result = self.nid.consommer_nourriture(5)
+        self.assertTrue(result)
+        self.assertEqual(self.nid.quantite_nourriture, 5)
+
+    def test_consommer_nourriture_insuffisante(self):
+        result = self.nid.consommer_nourriture(20)
+        self.assertFalse(result)
+        self.assertEqual(self.nid.quantite_nourriture, 10)
+
+    def test_cases_voisines(self):
+        voisins = self.nid.cases_voisines()
+        # Les cases voisines du centre (5,5) dans une grille 10x10
+        expected_voisins = {(4,5), (6,5), (5,4), (5,6)}
+        self.assertEqual(voisins, expected_voisins)
+
+    def test_agrandir(self):
+        # On agrandit le nid
+        old_len = len(self.nid.cases)
+        self.nid.agrandir()
+        self.assertEqual(len(self.nid.cases), old_len + 1)
+        # Vérifie que la phéromone de nidification est déposée
+        nouvelle_case = list(self.nid.cases - {(5,5)})[0]
+        self.assertEqual(self.env.grille_phero[nouvelle_case[1]][nouvelle_case[0]]["nidification"], 100)
 
 
 if __name__ == '__main__':
