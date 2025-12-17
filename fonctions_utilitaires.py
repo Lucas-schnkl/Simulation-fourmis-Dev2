@@ -129,6 +129,7 @@ def boucle_animation():
     if env.nid:
         env.nid.cycle_de_vie()
 
+    env.evaporation()
     #Mise à jour graphique
     dessiner_tout()
 

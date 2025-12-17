@@ -16,7 +16,7 @@ class Environnement:
 
         # NOUVEAU : Compteur pour le nettoyage global
         self.compteur_sans_manger = 0
-        self.seuil_nettoyage = 50  # Après 500 ticks sans manger, on nettoie tout
+        self.seuil_nettoyage = 200  # Après 500 ticks sans manger, on nettoie tout
 
         # Initialisation de la grille
         self.grille_phero = []
