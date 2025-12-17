@@ -122,3 +122,9 @@ class Environnement:
     def supprimer_source(self, source):
         if source in self.sources:
             self.sources.remove(source)
+
+    def generateur_sources_actives(self):
+        #Générateur qui renvoie uniquement les sources ayant encore de la nourriture
+        for source in self.sources:
+            if source.compteur > 0:
+                yield source
