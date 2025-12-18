@@ -148,5 +148,7 @@ class Environnement:
 
     def fourmis_type(self, type_classe):        #cette fonction a pour but de nous renvoyer le type des fourmis
         for f in self.fourmis:
-            if isinstance(f, type_classe) and f.vivante:
-                yield f
+            if isinstance(f, type_classe) and f.vivante:   #On regarde si dans avec "isinstance" si f (donc une fourmie de la liste) si elle est une instance de "type_classe".
+                yield f                                    #Ici yield a pour but de renvoyer une fourmis qui correspont aux critères dès qu'elle en trouve un.
+                                                           #Avec une liste classique, on aurait du attendre que tout se remplisse avant de pouvoir envoyer → yield = economie de perf.
+
