@@ -91,7 +91,7 @@ class Predateur:
         proches = filter(
             lambda s: abs(self.pos_x - s.pos_x) <= 1 and abs(self.pos_y - s.pos_y) <= 1,        #cette ligne filtre toutes les fourmis soldat qui sont juste a coter du préda
             self._envi.fourmis_type(Soldat)                                       #cette ligne  a pour but de recuperer le type de fourmis(ici soldat)
-        ) #ici on a utilise lambda car filter a besoin d'avoir quelque chose qui lui renvoie True ou False. Pour ne pas devoir cree un fonction supplémentaire on utilise lambda. l'arg "s" de lambda représente chaque soldat 1 par 1.
+        ) #ici on a utilise lambda car filter a besoin d'avoir une règle qui lui renvoie True ou False. Pour ne pas devoir cree un fonction supplémentaire on utilise lambda. l'arg "s" de lambda représente chaque soldat 1 par 1.
         soldat_fourmis = next(proches, None) #on va regarder celui qui est le plus proche (le premier)
 
         if soldat_fourmis:
@@ -116,3 +116,4 @@ class Predateur:
                 fourmis.vivante = False
 
                 print("un prédateur à manger une fourmie")
+
