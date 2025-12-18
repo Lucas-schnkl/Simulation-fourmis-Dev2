@@ -87,11 +87,9 @@ def recharge():
             contenu = json.load(f)
 
     except FileNotFoundError:
-        print("Il n'existe aucun fichier de sauvegarde")  # verif si le fichier existe
-        return
+        raise FileNotFoundError("Il n'existe aucun fichier de sauvegarde.")
     except json.JSONDecodeError:
-        print("Fichier de sauvegarde corrompu")
-        return
+        raise ValueError("Fichier de sauvegarde corrompu")
 
     mon_canvas.delete("all")  # efface le canvas avant de redessiner
 
@@ -191,4 +189,5 @@ def dessiner_tout():
 
     if env.nid:  # Affichage du compteur de Larves
         nb_larves = len(env.nid.larves)
+
         mon_canvas.create_text(50, 40, text=f"Larves: {nb_larves}", font=("Arial", 10), fill="blue")
