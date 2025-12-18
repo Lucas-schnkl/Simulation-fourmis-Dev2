@@ -80,6 +80,10 @@ def stop():
 def sauvegarde():
     print("Sauvegarde (pas encore implémenté)")
 
+class ErreurJSON(Exception):
+    #Exception pour les erreurs de chargement JSON
+    pass
+
 def recharge():
     global mon_canvas
     try:
@@ -87,9 +91,9 @@ def recharge():
             contenu = json.load(f)
 
     except FileNotFoundError:
-        raise FileNotFoundError("Il n'existe aucun fichier de sauvegarde.")
+        raise ErreurJSON("Il n'existe aucun fichier de sauvegarde.")
     except json.JSONDecodeError:
-        raise ValueError("Fichier de sauvegarde corrompu")
+        raise ErreurJSON("Fichier de sauvegarde corrompu")
 
     mon_canvas.delete("all")  # efface le canvas avant de redessiner
 
@@ -191,3 +195,4 @@ def dessiner_tout():
         nb_larves = len(env.nid.larves)
 
         mon_canvas.create_text(50, 40, text=f"Larves: {nb_larves}", font=("Arial", 10), fill="blue")
+
