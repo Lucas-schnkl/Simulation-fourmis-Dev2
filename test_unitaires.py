@@ -12,10 +12,18 @@ import unittest
 class TestSourcceNourriture(unittest.TestCase):
 
     def setUp(self):                                    #fonction d'initialisation des valeurs
+        """
+        Pré : L'environnement et la classe SourceNourriture sont définis.
+        Post : Une instance "SourceNourriture" est créée avec des attributs fixes et est ajoutée à self.source_nourriture pour les tests suivants.
+        """
         self.envi = Environnement(largeur=100, hauteur=100, taille_pixel=10)
         self.source_nourriture = source_nourriture.SourceNourriture(self.envi, 0, 0, "#00FF4D", 3) #mise en place de valeur fixe
 
     def test_setUp(self):
+        """
+        Pré : Une SourceNourriture à été initialisée.
+        Post : Vérifie que les attributs correspondent à ce qu'on à initialisé avec setUp()
+        """
         self.assertEqual(self.source_nourriture._pos_x, 0)
         self.assertEqual(self.source_nourriture._pos_y, 0)
         self.assertEqual(self.source_nourriture._couleur, "#00FF4D")
@@ -24,9 +32,19 @@ class TestSourcceNourriture(unittest.TestCase):
         self.assertIn(self.source_nourriture, source_nourriture.SourceNourriture.liste_sources)     #verifie si la classe s'est rajouté elle meme dans la liste
 
     def test_getter_compteur(self):
+        """
+        Pré : self.source_nourriture.compteur est initialisé à 3.
+        Post : Confirme que self.source_nourriture.compteur renvoie 3.
+        """
         self.assertEqual(self.source_nourriture.compteur, 3)
 
     def test_setter_compteur(self):
+        """
+        Pré : self.source_nourriture.compteur est initialisé à 3.
+        Post : Après avoir retiré 1 au compteur, on obtient 2. 
+               Après retiré 2 au nouveau compteur, on obtient 0.
+               La méthode regenerer() doit avoir été appelée et elle doit avoir fixer le compteur à un nombre compris entre 5 et 15.
+        """
         self.source_nourriture.compteur = 1                             #va jouer compteur avec pour agr 1 donc on aura le compteur initialiser - 1
         self.assertEqual(self.source_nourriture.compteur, 2)    # rep 2 (nouv compteur)
 
@@ -35,6 +53,10 @@ class TestSourcceNourriture(unittest.TestCase):
         self.assertTrue(5 <= self.source_nourriture.compteur <= 15)
 
     def test_disparaitre(self):
+        """
+        Pré : self.source_nourriture est présent dans la liste "source_nourriture.SourceNourriture.liste_sources".
+        Post : Après avoir appelé "self.source_nourriture.disparaitre()", l'instance ne doit plus figurer dans "source_nourriture.SourceNourriture.liste_sources".
+        """
         self.source_nourriture.disparaitre()                    #appel la fonction de suppression
         self.assertNotIn(self.source_nourriture, source_nourriture.SourceNourriture.liste_sources)  #verifie si la class n'y est plus
 
@@ -154,3 +176,4 @@ class TestNid(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
