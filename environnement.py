@@ -53,7 +53,7 @@ class Environnement:
         # Supprime les fourmis mortes
         self.fourmis = list(filter(lambda f: f.vivante, self.fourmis))
 
-    # NOUVEAU : Appelé par le nid quand une fourmi ramène à manger
+    # Appelée par le nid quand une fourmi ramène à manger
     def signal_nourriture_apportee(self):
         self.compteur_sans_manger = 0
 
@@ -152,3 +152,8 @@ class Environnement:
                 yield f                                    #Ici yield a pour but de renvoyer une fourmis qui correspont aux critères dès qu'elle en trouve un.
                                                            #Avec une liste classique, on aurait du attendre que tout se remplisse avant de pouvoir envoyer → yield = economie de perf.
 
+    def predateurs_actifs(self):
+        # Renvoie tous les prédateurs dans la liste qui ne sont pas en fuite
+        for preda in self.predateurs:
+            if not preda._fuite:
+                yield preda
