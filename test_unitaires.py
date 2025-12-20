@@ -4,7 +4,7 @@ import fourmis
 from fourmis import Fourmis
 import nid
 from nid import Nid
-import predateur
+from predateur import Predateur
 import source_nourriture as source_nourriture
 import unittest
 
@@ -128,6 +128,15 @@ class TestEnvironnement(unittest.TestCase):
         self.assertIn(s1, sources_actives)
         self.assertNotIn(s2, sources_actives)
 
+    def test_predateurs_actifs(self):
+        # Vérifie que les prédateurs sont pas en fuite
+        p1 = Predateur(self.env)
+        p2 = Predateur(self.env, fuite=True)
+        self.env.predateurs = [p1, p2]
+        predateurs_actifs = list(self.env.predateurs_actifs())
+        self.assertIn(p1, predateurs_actifs)
+        self.assertNotIn(p2, predateurs_actifs)
+
 
 class TestNid(unittest.TestCase):
 
@@ -174,6 +183,9 @@ class TestNid(unittest.TestCase):
         self.assertEqual(self.env.grille_phero[nouvelle_case[1]][nouvelle_case[0]]["nidification"], 100)
 
 
+class NidError(Exception):
+    # Erreur due au manquement du nid
+    pass
+
 if __name__ == '__main__':
     unittest.main()
-
