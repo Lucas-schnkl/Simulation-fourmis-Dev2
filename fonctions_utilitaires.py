@@ -5,6 +5,7 @@ from environnement import Environnement
 from nid import Nid
 from source_nourriture import SourceNourriture
 from predateur import Predateur
+from test_unitaires import NidError
 
 
 #variable globale
@@ -162,6 +163,8 @@ def dessiner_tout():
         for cx, cy in env.nid.cases:
             px, py = cx * taille, cy * taille
             mon_canvas.create_rectangle(px, py, px + taille, py + taille, fill="#CC6600", outline="")
+    else:
+        raise NidError("Le nid n'existe pas")
 
     # Dessine SOURCES de nourri (Rond Vert)
     # On utilise le générateur pour ne récupérer que les sources actives
@@ -191,8 +194,11 @@ def dessiner_tout():
 
     mon_canvas.create_text(50, 20, text=f"Fourmis: {compteur_fourmis}",font=("Arial", 12, "bold"))  # Affiche nombre total en haut à gauche pour vérif
 
-    if env.nid:  # Affichage du compteur de Larves
+    try :
         nb_larves = len(env.nid.larves)
 
         mon_canvas.create_text(50, 40, text=f"Larves: {nb_larves}", font=("Arial", 10), fill="blue")
+
+    except:
+        print("Le nid n'existe pas")
 
