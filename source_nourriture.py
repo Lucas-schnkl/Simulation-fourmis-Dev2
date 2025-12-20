@@ -92,4 +92,4 @@ class SourceNourriture:
         # On retire la source de l'environnement pour que les fourmis arrêtent de la voir
         if self._envi and self in self._envi.sources:
 
-            self._envi.supprimer_source(self)
+            self._envi.supprimer_source()
