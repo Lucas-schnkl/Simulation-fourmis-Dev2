@@ -85,6 +85,19 @@ class Fourmis:
         if self.pos_y >= env.hauteur_grille: self.pos_y = env.hauteur_grille - 1
 
     def se_deplacer(self, env):
+        """
+                Pre :
+                - `env` doit être une instance de la classe Environnement (contenant la grille, les sources et le nid).
+                - La fourmi doit avoir des coordonnées (pos_x, pos_y).
+
+                Post :
+                - Si fourmi morte (`self.vivante` = False), sa position ne change pas.
+                - Si la fourmi est vivante :
+                    - Sa position (`self.pos_x`, `self.pos_y`) est modifiée de max 1 case dans (x, y), sauf obstacle.
+                    - Les nouvelles coordonnées respectent limites de la grille (`env.largeur_grille`, `env.hauteur_grille`).
+                    - Si source de nourriture atteinte, fourmi change (`self.retour` devient True) et la source est diminuée.
+                    - Si la fourmi est en mode "retour", elle se rapproche du nid.
+                """
         # AJOUT : Bloc Try-Except pour la robustesse (Gestion des erreurs)
         try:
             if not self._vivante:
@@ -195,6 +208,19 @@ class Fourmis:
             self.pos_y -= 1
 
     def retourner_au_nid(self, env):
+        """
+                Pre :
+                - `env` doit contenir un nid valide (`env.nid` n'est pas None).
+                - La fourmi doit être en mode retour (`self.retour` = True).
+
+                Post :
+                - La fourmi se déplace de 1 case en direction des coordonnées du nid (`nid.pos_x`, `nid.pos_y`).
+                - Une phéromone de type "nourriture" est déposée sur la position actuelle de la fourmi.
+                - Si la fourmi atteint une case faisant partie du nid :
+                    - La quantité de nourriture du nid augmente de 1 (`nid.ajouter_nourriture(1)`).
+                    - La fourmi repasse en mode exploration (`self.retour` = False).
+                """
+
         nid = env.nid
         nid_x = nid.pos_x
         nid_y = nid.pos_y
