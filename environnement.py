@@ -45,14 +45,6 @@ class Environnement:
     def ajouter_larve(self, larve):
         self.larves.append(larve)
 
-    def nettoyer(self):
-        # Supprime les sources vides
-        self.sources = list(filter(lambda s: s.compteur > 0, self.sources))
-        print(f"nombre de sources : {len(self.sources)}")
-
-        # Supprime les fourmis mortes
-        self.fourmis = list(filter(lambda f: f.vivante, self.fourmis))
-
     # Appelée par le nid quand une fourmi ramène à manger
     def signal_nourriture_apportee(self):
         self.compteur_sans_manger = 0
@@ -136,9 +128,9 @@ class Environnement:
                     break
             self.sources.append(SourceNourriture(self, pos_x=x, pos_y=y))
 
-    def supprimer_source(self, source):
-        if source in self.sources:
-            self.sources.remove(source)
+    def supprimer_source(self):
+        # Supprime les sources vides
+        self.sources = list(filter(lambda s: s.compteur > 0, self.sources))
 
     def generateur_sources_actives(self):
         #Générateur qui renvoie uniquement les sources ayant encore de la nourriture
