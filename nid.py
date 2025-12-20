@@ -38,6 +38,23 @@ class Nid:
         return self._quantite_nourriture
 
     def ajouter_nourriture(self, quantite: int):
+        """
+        Pre :
+        - quantite > 0
+        - self.larves est une liste valide
+
+        Post :
+        - self._quantite_nourriture est augmentée de quantite
+        - signal_nourriture_apportee() est appelée si l’environnement existe
+        - Si la nourriture atteint le seuilde naissance, une Larve est ajoutée
+
+         Nourriture initiale | Quantité ajoutée | Environnement | Résultat attendu           | Larve créée |
+         0                   | 1                | oui           | _quantite_nourriture = 1    | non          |
+         1                   | 1                | oui           | _quantite_nourriture = 2    | non          |
+         2                   | 1                | oui           | _quantite_nourriture = 3    | oui           |
+         3                   | 2                | oui           | _quantite_nourriture = 5    | oui          |
+
+        """
         # Ajoute nourriture dans la réserve
         self._quantite_nourriture += quantite
         print(f"Quantité ajoutée : {quantite} ({self._quantite_nourriture})")
@@ -62,6 +79,23 @@ class Nid:
                 self._envi.ajouter_fourmi(nouvelle_fourmi) #Création de la fourmi sur le nid
 
     def consommer_nourriture(self, quantite: int):
+        """
+        Pre :
+        -quantite > 0
+        -self._quantite_nourriture >= 0
+
+        Post :
+        -Baisse la quantité de nourriture entreposée dans la nid
+        -Retourne True si self._quantite_nourriture >= quantite
+        -Retourne False sinon
+
+        Nourriture initiale | Quantité consommée | Nourriture restante      | Retour
+         5                  | 1                  | _quantite_nourriture = 4   | True
+         5                   | 3                 | _quantite_nourriture = 2  | True
+         4                   | 3                 | _quantite_nourriture = 1  | True
+         2                   | 2                 | _quantite_nourriture = 0  | True
+         2                   | 3                 | _quantite_nourriture = 2  | False
+        """
         if self._quantite_nourriture >= quantite:
             self._quantite_nourriture -= quantite
            # print(f"Nourriture consommée : -{quantite} (Reste: {self._quantite_nourriture})")
